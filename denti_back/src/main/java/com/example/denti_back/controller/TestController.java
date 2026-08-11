@@ -2,11 +2,7 @@ package com.example.denti_back.controller;
 
 import com.example.denti_back.ai.service.AiEstimateService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -28,7 +24,7 @@ public class TestController {
         return response;
     }
 
-    // 테스트용 - AI 서버 연동 확인 끝나면 ai 도메인 컨트롤러로 옮길 예정
+    // 테스트 페이지 전용 - 이미지 받아서 AI 서버 호출 결과 그대로 반환
     @PostMapping("/test/analyze")
     public Map<String, Object> testAnalyze(@RequestParam("image") MultipartFile image) throws IOException {
         return aiEstimateService.requestAnalysis(image);
