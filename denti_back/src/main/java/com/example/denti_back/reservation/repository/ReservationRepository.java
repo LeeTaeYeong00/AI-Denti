@@ -15,6 +15,7 @@ public interface ReservationRepository
     // 정비소별 예약 조회
     List<Reservation> findByShop_ShopId(Long shopId);
 
+    // 같은 사용자가 같은 예약 가능 시간을 중복 예약했는지 확인
     boolean existsByUser_UserIdAndAvailableTime_AvailableTimeId(
             Long userId,
             Long availableTimeId
