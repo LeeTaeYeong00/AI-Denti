@@ -132,4 +132,4 @@ models/
 .ipynb_checkpoints/
 
 # huggingface 캐시 (혹시 프로젝트 폴더 안에 생성됐다면)
-.cache/
+.cache/bin/
