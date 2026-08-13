@@ -1,5 +1,6 @@
 package com.example.denti_back.ai.entity;
 
+import com.example.denti_back.ai.enums.DamageType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +18,10 @@ public class AiAnalysisDetail {
     @JoinColumn(name = "analysis_id")
     private AiAnalysis analysis;
 
-    private String damagePart;
-    private Double damagePercentage;
-    private Integer estimatedCost;
+    @Enumerated(EnumType.STRING)
+    private DamageType damageType; // BREAKAGE, CRUSHED, SCRATCH, SEPARATED
+
+    private Integer pixelArea;     // 코랩 결과의 "영역" (예: 8011)
+    private Integer estimatedCost; // 픽셀 * 단가 (예: 801100)
+    private Double damagePercentage; 
 }
