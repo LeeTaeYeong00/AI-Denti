@@ -22,4 +22,6 @@ public class AiAnalysis {
     @ManyToOne
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle; // 임시 차량 분석 시 null 허용
+
+    private Integer totalCost;
 }
