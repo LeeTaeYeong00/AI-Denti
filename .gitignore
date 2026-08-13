@@ -107,4 +107,4 @@ dist-ssr
 *.suo
 *.ntvs*
 *.ids
-*.ccproj
+*.ccprojbin/
