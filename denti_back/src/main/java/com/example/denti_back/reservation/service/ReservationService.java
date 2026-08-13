@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.denti_back.member.entity.User;
 import com.example.denti_back.reservation.dto.ReservationRequestDto;
 import com.example.denti_back.reservation.dto.ReservationResponseDto;
 import com.example.denti_back.reservation.entity.AvailableTime;
@@ -13,6 +14,8 @@ import com.example.denti_back.reservation.enums.ReservationStatus;
 import com.example.denti_back.reservation.repository.AvailableTimeRepository;
 import com.example.denti_back.reservation.repository.ReservationRepository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -21,6 +24,10 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final AvailableTimeRepository availableTimeRepository;
+    
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Transactional
     public Reservation createReservation(ReservationRequestDto request) {
@@ -53,6 +60,12 @@ public class ReservationService {
 
         Reservation reservation = new Reservation();
 
+        User user = entityManager.getReference(
+                User.class,
+                request.getUserId()
+        );
+
+        reservation.setUser(user);
         reservation.setShop(availableTime.getShop());
         reservation.setAvailableTime(availableTime);
         reservation.setStatus(ReservationStatus.PENDING);
