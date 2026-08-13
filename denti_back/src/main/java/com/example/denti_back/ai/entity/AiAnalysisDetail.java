@@ -23,4 +23,5 @@ public class AiAnalysisDetail {
 
     private Integer pixelArea;     // 코랩 결과의 "영역" (예: 8011)
     private Integer estimatedCost; // 픽셀 * 단가 (예: 801100)
+    private Double damagePercentage; 
 }

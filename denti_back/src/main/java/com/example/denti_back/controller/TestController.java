@@ -1,7 +1,8 @@
 package com.example.denti_back.controller;
 
+import com.example.denti_back.ai.entity.AiAnalysis;
 import com.example.denti_back.ai.service.AiEstimateService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,10 +12,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class TestController {
 
-    @Autowired
-    private AiEstimateService aiEstimateService;
+    private final AiEstimateService aiEstimateService;
 
     @GetMapping("/health")
     public Map<String, String> healthCheck() {
@@ -24,9 +25,19 @@ public class TestController {
         return response;
     }
 
-    // 테스트 페이지 전용 - 이미지 받아서 AI 서버 호출 결과 그대로 반환
     @PostMapping("/test/analyze")
     public Map<String, Object> testAnalyze(@RequestParam("image") MultipartFile image) throws IOException {
         return aiEstimateService.requestAnalysis(image);
+    }
+
+    @PostMapping("/test/analyze-save")
+    public Map<String, Object> testAnalyzeAndSave(@RequestParam("image") MultipartFile image) throws IOException {
+        AiAnalysis saved = aiEstimateService.analyzeAndSave(image);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("analysisId", saved.getAnalysisId());
+        response.put("totalCost", saved.getTotalCost());
+        response.put("message", "DB 저장 완료");
+        return response;
     }
 }
