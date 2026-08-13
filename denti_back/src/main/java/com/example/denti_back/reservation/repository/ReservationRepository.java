@@ -14,4 +14,9 @@ public interface ReservationRepository
 
     // 정비소별 예약 조회
     List<Reservation> findByShop_ShopId(Long shopId);
+
+    boolean existsByUser_UserIdAndAvailableTime_AvailableTimeId(
+            Long userId,
+            Long availableTimeId
+    );
 }

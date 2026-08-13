@@ -30,6 +30,18 @@ public class ReservationService {
                 .orElseThrow(() ->
                         new IllegalArgumentException("예약 가능 시간을 찾을 수 없습니다."));
 
+        boolean alreadyReserved = reservationRepository
+                .existsByUser_UserIdAndAvailableTime_AvailableTimeId(
+                        request.getUserId(),
+                        request.getAvailableTimeId()
+                );
+
+        if (alreadyReserved) {
+            throw new IllegalStateException(
+                    "이미 해당 시간에 예약한 내역이 있습니다."
+            );
+        }
+
         if (availableTime.isReserved()) {
             throw new IllegalStateException("이미 예약된 시간입니다.");
         }
@@ -164,6 +176,7 @@ public class ReservationService {
             availableTime.setReserved(false);
             availableTimeRepository.save(availableTime);
         }
+        
 
         return reservationRepository.save(reservation);
     }
