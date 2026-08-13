@@ -24,6 +24,10 @@ public class Reservation {
     @JoinColumn(name = "shop_id")
     private RepairShop shop;
 
+    @ManyToOne
+    @JoinColumn(name = "available_time_id")
+    private AvailableTime availableTime;
+
     @Enumerated(EnumType.STRING)
     private ReservationStatus status;
 }
