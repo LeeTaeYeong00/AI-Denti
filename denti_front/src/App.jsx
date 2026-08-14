@@ -1,10 +1,7 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
-import './App.css'
-import AiTestPage from './AiTestPage'
+import ReservationPage from "./pages/ReservationPage";
 
 function App() {
-  return <AiTestPage />
+    return <ReservationPage />;
 }
 
-export default App
+export default App;
