@@ -1,7 +1,21 @@
-import ReservationPage from "./pages/ReservationPage";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import MapPage from "./pages/MapPage";
+import RepairShopDetailPage from "./pages/RepairShopDetailPage";
 
 function App() {
-    return <ReservationPage />;
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<MapPage />} />
+
+                <Route
+                    path="/repair-shops/:shopId"
+                    element={<RepairShopDetailPage />}
+                />
+            </Routes>
+        </BrowserRouter>
+    );
 }
 
 export default App;
