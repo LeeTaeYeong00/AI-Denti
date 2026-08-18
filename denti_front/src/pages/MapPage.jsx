@@ -5,6 +5,7 @@ function MapPage() {
     const mapContainer = useRef(null);
 
     const [addresses, setAddresses] = useState([]);
+    const [kakaoLoaded, setKakaoLoaded] = useState(false);
 
     // 정비소 주소 조회
     useEffect(() => {
@@ -25,14 +26,42 @@ function MapPage() {
         getAddresses();
     }, []);
 
-    // 카카오 지도 생성
+    // 카카오 지도 SDK 로딩 확인 (로드될 때까지 계속 체크)
+    useEffect(() => {
+        const checkKakao = () => {
+            if (
+                window.kakao &&
+                window.kakao.maps &&
+                typeof window.kakao.maps.load === "function"
+            ) {
+                console.log("카카오 지도 SDK 확인 완료");
+                setKakaoLoaded(true);
+                return true;
+            }
+            return false;
+        };
+
+        if (checkKakao()) {
+            return;
+        }
+
+        const interval = setInterval(() => {
+            if (checkKakao()) {
+                clearInterval(interval);
+            }
+        }, 300);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    // 카카오 지도 생성 (주소 + SDK 로딩이 모두 끝나면 실행)
     useEffect(() => {
         if (addresses.length === 0) {
             return;
         }
 
-        if (!window.kakao || !window.kakao.maps) {
-            console.log("카카오 지도 SDK가 아직 로드되지 않음");
+        if (!kakaoLoaded) {
+            console.log("카카오 지도 SDK가 아직 로드되지 않음, 대기 중...");
             return;
         }
 
@@ -126,7 +155,7 @@ function MapPage() {
 
             console.log("마커 생성 성공");
         });
-    }, [addresses]);
+    }, [addresses, kakaoLoaded]);
 
     return (
         <div>

@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 function RepairShopDetailPage() {
     const { shopId } = useParams();
+    const { loginUser } = useAuth();
+    const navigate = useNavigate();
 
     const [shop, setShop] = useState(null);
     const [kakaoLoaded, setKakaoLoaded] = useState(false);
@@ -199,8 +202,20 @@ function RepairShopDetailPage() {
                             <strong>{selectedTime.availableTime}</strong>
                         </p>
 
+                        {!loginUser && (
+                            <p style={{ color: "#c0392b", marginBottom: "10px" }}>
+                                로그인 후 예약을 신청할 수 있습니다.
+                            </p>
+                        )}
+
                         <button
                             onClick={() => {
+                                if (!loginUser) {
+                                    alert("로그인 후 이용해주세요.");
+                                    navigate("/login");
+                                    return;
+                                }
+
                                 console.log("예약하기:", {
                                     shopId: shop.shopId,
                                     date: selectedDate,

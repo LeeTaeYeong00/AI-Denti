@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function ReservationPage() {
+    const { loginUser } = useAuth();
+    const navigate = useNavigate();
     const [shopId] = useState(1);
     const [userId] = useState(1);
     const [date, setDate] = useState("2026-08-20");
@@ -33,6 +37,12 @@ function ReservationPage() {
     };
 
     const createReservation = async () => {
+        if (!loginUser) {
+            alert("로그인 후 이용해주세요.");
+            navigate("/login");
+            return;
+        }
+
         if (!selectedTime) {
             alert("예약 시간을 선택해주세요.");
             return;
@@ -117,8 +127,14 @@ function ReservationPage() {
                 </p>
             </div>
 
+            {!loginUser && (
+                <p style={{ color: "#c0392b", marginBottom: "10px" }}>
+                    로그인 후 예약을 신청할 수 있습니다.
+                </p>
+            )}
+
             <button
-                disabled={!selectedTime}
+                disabled={!selectedTime || !loginUser}
                 onClick={createReservation}
             >
                 예약 신청
