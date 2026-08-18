@@ -27,6 +27,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**", "/api/health", "/api/test/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
+                .requestMatchers(
+                    "/api/repair-shop-addresses/**",
+                    "/api/available-times/**"
+                ).permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form.disable())

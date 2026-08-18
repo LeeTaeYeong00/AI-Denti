@@ -13,10 +13,15 @@ export default function NavBar() {
     };
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 20px', borderBottom: '1px solid #ddd' }}>
-            <Link to="/" style={{ fontWeight: 'bold', textDecoration: 'none', color: 'black' }}>
-                🚗 AI-Denti
-            </Link>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 20px', borderBottom: '1px solid #ddd' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                <Link to="/" style={{ fontWeight: 'bold', textDecoration: 'none', color: 'black' }}>
+                    🚗 AI-Denti
+                </Link>
+                <Link to="/map" style={{ textDecoration: 'none', color: 'black' }}>
+                    정비소 지도
+                </Link>
+            </div>
             <div>
                 {loginUser ? (
                     <>

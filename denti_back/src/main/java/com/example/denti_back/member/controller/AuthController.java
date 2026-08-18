@@ -57,11 +57,18 @@ public class AuthController {
         return ResponseEntity.ok("로그아웃 되었습니다.");
     }
 
+    // 비로그인 상태를 "에러"가 아니라 "정상적으로 로그인 안 된 상태"로 취급한다.
+    // 그래야 프론트에서 매 페이지 로드마다 콘솔에 4xx 에러 로그가 남지 않는다.
     @GetMapping("/me")
-    public ResponseEntity<?> getLoginUser() {
+    public ResponseEntity<LoginUserResponse> getLoginUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+
+        boolean isAnonymous = authentication == null
+                || !authentication.isAuthenticated()
+                || !(authentication.getPrincipal() instanceof CustomUserDetails);
+
+        if (isAnonymous) {
+            return ResponseEntity.ok(null);
         }
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
