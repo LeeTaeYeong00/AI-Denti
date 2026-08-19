@@ -9,6 +9,9 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import MapPage from './pages/MapPage';
 import RepairShopDetailPage from './pages/RepairShopDetailPage';
+import ReservationPage from './pages/ReservationPage';
+import MyReservationPage from './pages/MyReservationPage';
+import ShopReservationPage from './pages/ShopReservationPage';
 import AiAnalysisPage from './pages/ai/AiAnalysisPage';
 
 function App() {
@@ -27,6 +30,25 @@ function App() {
                     <Route
                         path="/repair-shops/:shopId"
                         element={<RepairShopDetailPage />}
+                    />
+
+                    <Route
+                        path="/repair-shops/:shopId/reservation"
+                        element={<ReservationPage />}
+                    />
+
+                    <Route
+                        path="/my-reservations"
+                        element={
+                            <ProtectedRoute>
+                                <MyReservationPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/shop-reservations"
+                        element={<ShopReservationPage />}
                     />
 
                     {/* AI 분석 페이지 (보호된 라우트) */}
