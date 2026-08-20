@@ -29,8 +29,7 @@ public class SecurityConfig {
                 // 공개 API
                 .requestMatchers(
                     "/api/auth/**",
-                    "/api/health",
-                    "/api/test/**"
+                    "/api/health"
                 ).permitAll()
 
                 .requestMatchers("/uploads/**").permitAll()

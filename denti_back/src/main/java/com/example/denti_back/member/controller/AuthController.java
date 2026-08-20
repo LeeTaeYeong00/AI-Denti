@@ -1,6 +1,7 @@
 package com.example.denti_back.member.controller;
 
 import com.example.denti_back.member.dto.LoginRequest;
+import com.example.denti_back.member.dto.LoginUserResponse;
 import com.example.denti_back.member.dto.SignupRequest;
 import com.example.denti_back.member.security.CustomUserDetails;
 import com.example.denti_back.member.service.AuthService;
@@ -78,6 +79,4 @@ public class AuthController {
                 user.getUserId(), user.getEmail(), user.getNickName(), user.getRole().name()
         ));
     }
-
-    record LoginUserResponse(Long userId, String email, String nickName, String role) {}
 }
