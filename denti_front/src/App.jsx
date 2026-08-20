@@ -11,6 +11,7 @@ import MapPage from './pages/MapPage';
 import RepairShopDetailPage from './pages/RepairShopDetailPage';
 import ReservationPage from './pages/ReservationPage';
 import MyReservationPage from './pages/MyReservationPage';
+import RepairHistoryPage from './pages/RepairHistoryPage';
 import ShopReservationPage from './pages/ShopReservationPage';
 import AiAnalysisPage from './pages/ai/AiAnalysisPage';
 
@@ -42,6 +43,15 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <MyReservationPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/repair-history"
+                        element={
+                            <ProtectedRoute>
+                                <RepairHistoryPage />
                             </ProtectedRoute>
                         }
                     />

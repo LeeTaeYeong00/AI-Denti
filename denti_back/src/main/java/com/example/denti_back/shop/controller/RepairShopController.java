@@ -25,9 +25,9 @@ import lombok.RequiredArgsConstructor;
 public class RepairShopController {
 
     private final RepairShopRepository repairShopRepository;
-
     private final RepairShopService repairShopService;
 
+    // 로그인한 사용자의 정비소 조회
     @GetMapping("/my")
     public ResponseEntity<RepairShop> getMyRepairShop() {
 
@@ -42,16 +42,38 @@ public class RepairShopController {
         RepairShop shop = repairShopRepository
                 .findByOwner(user)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("정비소 정보를 찾을 수 없습니다."));
+                        new IllegalArgumentException(
+                                "정비소 정보를 찾을 수 없습니다."
+                        )
+                );
 
         return ResponseEntity.ok(shop);
     }
 
+    // 정비소 상세 조회
+    @GetMapping("/{shopId}")
+    public ResponseEntity<RepairShop> getRepairShop(
+            @PathVariable Long shopId
+    ) {
+
+        RepairShop shop = repairShopRepository
+                .findById(shopId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "정비소를 찾을 수 없습니다."
+                        )
+                );
+
+        return ResponseEntity.ok(shop);
+    }
+
+    // 정비소 정보 수정
     @PutMapping("/{shopId}")
     public ResponseEntity<RepairShop> updateRepairShop(
             @PathVariable Long shopId,
             @RequestBody RepairShopUpdateRequestDto request
     ) {
+
         return ResponseEntity.ok(
                 repairShopService.updateRepairShop(
                         shopId,

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { getRepairItemsByShop } from "../api/repairItemAPI";
+import { getRepairShopHours } from "../api/repairShopHourAPI";
 
 function RepairShopDetailPage() {
     const { shopId } = useParams();
@@ -13,6 +15,9 @@ function RepairShopDetailPage() {
     const [selectedDate, setSelectedDate] = useState("");
     const [availableTimes, setAvailableTimes] = useState([]);
     const [selectedTime, setSelectedTime] = useState(null);
+    const [repairItems, setRepairItems] = useState([]);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [shopHours, setShopHours] = useState([]);
 
     // 1. 정비소 정보 조회
     useEffect(() => {
@@ -60,6 +65,46 @@ function RepairShopDetailPage() {
 
         return () => clearInterval(interval);
     }, []);
+
+    // 정비소의 정비 항목 조회
+    useEffect(() => {
+        if (!shop) return;
+
+        const getRepairItems = async () => {
+            try {
+                const data = await getRepairItemsByShop(shop.shopId);
+
+                console.log("정비 항목:", data);
+
+                setRepairItems(data);
+            } catch (error) {
+                console.error("정비 항목 조회 실패:", error);
+                setRepairItems([]);
+            }
+        };
+
+        getRepairItems();
+    }, [shop]);
+
+    // 정비소 영업시간 조회
+    useEffect(() => {
+        if (!shop) return;
+
+        const getShopHours = async () => {
+            try {
+                const data = await getRepairShopHours(shop.shopId);
+
+                console.log("정비소 영업시간:", data);
+
+                setShopHours(data);
+            } catch (error) {
+                console.error("영업시간 조회 실패:", error);
+                setShopHours([]);
+            }
+        };
+
+        getShopHours();
+    }, [shop]);
 
     // 3. 날짜 선택 시 예약 가능 시간 조회
     useEffect(() => {
@@ -144,6 +189,24 @@ function RepairShopDetailPage() {
                 <p>경도: {shop.longitude}</p>
             </div>
 
+            <div style={{ marginTop: "20px" }}>
+                <h2>영업시간</h2>
+
+                {shopHours.length === 0 ? (
+                    <p>등록된 영업시간이 없습니다.</p>
+                ) : (
+                    shopHours.map((hour) => (
+                        <div key={hour.hourId}>
+                            <strong>{hour.dayOfWeek}</strong>
+                            {" : "}
+                            {hour.openTime}
+                            {" ~ "}
+                            {hour.closeTime}
+                        </div>
+                    ))
+                )}
+            </div>
+
             <div
                 id="detail-map"
                 style={{
@@ -152,6 +215,70 @@ function RepairShopDetailPage() {
                     marginTop: "20px",
                 }}
             ></div>
+
+            <div style={{ marginTop: "30px" }}>
+                <h2>정비 항목</h2>
+
+                {repairItems.length === 0 ? (
+                    <p>등록된 정비 항목이 없습니다.</p>
+                ) : (
+                    repairItems.map((item) => (
+                        <button
+                            key={item.itemId}
+                            onClick={() => {
+                                console.log("선택한 정비 항목:", item);
+                                setSelectedItem(item);
+                            }}
+                            style={{
+                                display: "block",
+                                width: "100%",
+                                maxWidth: "500px",
+                                marginBottom: "10px",
+                                padding: "12px",
+                                textAlign: "left",
+                                cursor: "pointer",
+                                backgroundColor:
+                                    selectedItem?.itemId === item.itemId
+                                        ? "#333"
+                                        : "#fff",
+                                color:
+                                    selectedItem?.itemId === item.itemId
+                                        ? "#fff"
+                                        : "#000",
+                                border: "1px solid #ccc",
+                                borderRadius: "5px",
+                            }}
+                        >
+                            <strong>{item.name}</strong>
+
+                            <br />
+
+                            <span>
+                                {item.description}
+                            </span>
+
+                            <br />
+
+                            <span>
+                                가격: {item.price?.toLocaleString()}원
+                            </span>
+
+                            <br />
+
+                            <span>
+                                예상 소요시간: {item.estimatedMinutes}분
+                            </span>
+                        </button>
+                    ))
+                )}
+
+                {selectedItem && (
+                    <p>
+                        선택한 정비 항목:{" "}
+                        <strong>{selectedItem.name}</strong>
+                    </p>
+                )}
+            </div>
 
             <div style={{ marginTop: "30px" }}>
                 <h2>예약 가능 시간</h2>
@@ -216,12 +343,18 @@ function RepairShopDetailPage() {
                                     return;
                                 }
 
+                                if (!selectedItem) {
+                                    alert("정비 항목을 선택해주세요.");
+                                    return;
+                                }
+
                                 try {
                                     const response = await axios.post(
                                         "http://localhost:8080/api/reservations",
                                         {
                                             userId: loginUser.userId,
                                             shopId: shop.shopId,
+                                            itemId: selectedItem.itemId,
                                             availableTimeId: selectedTime.availableTimeId,
                                         },
                                         {
