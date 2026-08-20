@@ -78,3 +78,33 @@ export const createReviewReply = (
     userConfig(shopOwnerId),
   )
 }
+// 리뷰에 이미지를 등록한다.
+export const uploadReviewImages = (
+  reviewId,
+  userId,
+  files,
+) => {
+  const formData = new FormData()
+
+  // 여러 이미지 파일을 동일한 files 이름으로 담는다.
+  Array.from(files).forEach((file) => {
+    formData.append('files', file)
+  })
+
+  return axios.post(
+    `/api/reviews/${reviewId}/images`,
+    formData,
+    userConfig(userId),
+  )
+}
+
+// 리뷰 이미지 한 장을 삭제한다.
+export const deleteReviewImage = (
+  reviewImageId,
+  userId,
+) => {
+  return axios.delete(
+    `/api/reviews/images/${reviewImageId}`,
+    userConfig(userId),
+  )
+}

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import NavBar from './components/NavBar';
 import ProtectedRoute from './components/ProtectedRoute';
+import ReviewWritePage from './pages/review/ReviewWritePage';
 
 // Pages
 import Main from './pages/Main';
@@ -35,6 +36,15 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <AiAnalysisPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    
+                    <Route
+                        path="/reviews/write/:reservationId"
+                        element={
+                            <ProtectedRoute>
+                                <ReviewWritePage />
                             </ProtectedRoute>
                         }
                     />
