@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import ShopReviewSection from "../components/review/ShopReviewSection";
 
 function RepairShopDetailPage() {
     const { shopId } = useParams();
@@ -233,6 +234,12 @@ function RepairShopDetailPage() {
                         </button>
                     </div>
                 )}
+            </div>
+            <div style={{ marginTop: "40px" }}>
+                <ShopReviewSection
+                    shopId={shop.shopId}
+                    currentUserId={loginUser?.userId}
+                />
             </div>
         </div>
     );

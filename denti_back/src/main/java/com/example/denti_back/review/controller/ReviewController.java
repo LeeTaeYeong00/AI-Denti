@@ -50,7 +50,7 @@ public class ReviewController {
     @GetMapping("/{reviewId}")
     public ResponseEntity<ReviewResponse> getReview(
             @PathVariable Long reviewId,
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @RequestHeader(value = "X-User-Id", required = false) Long currentUserId) {
 
         ReviewResponse response =
                 reviewService.getReview(reviewId, currentUserId);
@@ -62,7 +62,7 @@ public class ReviewController {
     @GetMapping("/shops/{shopId}")
     public ResponseEntity<ShopReviewResponse> getShopReviews(
             @PathVariable Long shopId,
-            @RequestHeader("X-User-Id") Long currentUserId,
+            @RequestHeader(value = "X-User-Id", required = false) Long currentUserId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
