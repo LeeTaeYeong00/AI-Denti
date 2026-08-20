@@ -4,6 +4,8 @@ import com.example.denti_back.member.entity.User;
 import com.example.denti_back.reservation.enums.ReservationStatus;
 import com.example.denti_back.shop.entity.RepairItem;
 import com.example.denti_back.shop.entity.RepairShop;
+import com.example.denti_back.vehicle.entity.Vehicle;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +22,10 @@ public class Reservation {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "vehicle_id")
+    private Vehicle vehicle;
 
     @ManyToOne
     @JoinColumn(name = "shop_id")
