@@ -108,3 +108,14 @@ export const deleteReviewImage = (
     userConfig(userId),
   )
 }
+// 현재 로그인한 사용자가 작성한 리뷰 목록을 조회한다.
+export const getMyReviews = (
+  userId,
+  page = 0,
+  size = 5,
+) => {
+  return axios.get(
+    `/api/reviews/my?page=${page}&size=${size}`,
+    userConfig(userId),
+  )
+}

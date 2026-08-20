@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import ShopReviewSection from "../components/review/ShopReviewSection";
+import MyReviewSection from "../components/review/MyReviewSection";
 
 function RepairShopDetailPage() {
     const { shopId } = useParams();
@@ -238,6 +239,13 @@ function RepairShopDetailPage() {
             <div style={{ marginTop: "40px" }}>
                 <ShopReviewSection
                     shopId={shop.shopId}
+                    currentUserId={loginUser?.userId}
+                />
+            </div>
+            <div style={{ marginTop: "40px" }}>
+                <h2>내 리뷰 테스트 영역</h2>
+                
+                <MyReviewSection
                     currentUserId={loginUser?.userId}
                 />
             </div>
