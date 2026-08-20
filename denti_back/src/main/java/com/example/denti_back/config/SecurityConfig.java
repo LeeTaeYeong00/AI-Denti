@@ -25,12 +25,36 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/health", "/api/test/**").permitAll()
+
+                // 공개 API
+                .requestMatchers(
+                    "/api/auth/**",
+                    "/api/health",
+                    "/api/test/**"
+                ).permitAll()
+
                 .requestMatchers("/uploads/**").permitAll()
+
+                // 정비소 공개 정보
                 .requestMatchers(
                     "/api/repair-shop-addresses/**",
-                    "/api/available-times/**"
+                    "/api/available-times/**",
+                    "/api/repair-shops/*/hours/**",
+                    "/api/repair-shops/*"
                 ).permitAll()
+
+                // 정비 항목 조회
+                .requestMatchers(
+                    org.springframework.http.HttpMethod.GET,
+                    "/api/repair-items/shop/**"
+                ).permitAll()
+
+                // 예약 관련
+                .requestMatchers(
+                    "/api/reservations/**"
+                ).authenticated()
+
+                // 나머지는 로그인 필요
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form.disable())

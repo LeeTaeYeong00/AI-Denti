@@ -209,20 +209,39 @@ function RepairShopDetailPage() {
                         )}
 
                         <button
-                            onClick={() => {
+                            onClick={async () => {
                                 if (!loginUser) {
                                     alert("로그인 후 이용해주세요.");
                                     navigate("/login");
                                     return;
                                 }
 
-                                console.log("예약하기:", {
-                                    shopId: shop.shopId,
-                                    date: selectedDate,
-                                    time: selectedTime.availableTime,
-                                });
+                                try {
+                                    const response = await axios.post(
+                                        "http://localhost:8080/api/reservations",
+                                        {
+                                            userId: loginUser.userId,
+                                            shopId: shop.shopId,
+                                            availableTimeId: selectedTime.availableTimeId,
+                                        },
+                                        {
+                                            withCredentials: true,
+                                        }
+                                    );
 
-                                alert("예약 기능 연결 예정");
+                                    console.log("예약 성공:", response.data);
+
+                                    alert("예약이 신청되었습니다.");
+
+                                } catch (error) {
+                                    console.error("예약 신청 실패:", error);
+
+                                    if (error.response) {
+                                        console.log("서버 응답:", error.response.data);
+                                    }
+
+                                    alert("예약 신청에 실패했습니다.");
+                                }
                             }}
                             style={{
                                 padding: "10px 20px",
