@@ -25,6 +25,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
+
+                // 공개 API
                 .requestMatchers(
                     "/api/auth/**",
                     "/api/health",
@@ -33,7 +35,7 @@ public class SecurityConfig {
 
                 .requestMatchers("/uploads/**").permitAll()
 
-                // 정비소 주소 / 예약 가능 시간 / 영업시간 / 정비소 공개 정보
+                // 정비소 공개 정보
                 .requestMatchers(
                     "/api/repair-shop-addresses/**",
                     "/api/available-times/**",
@@ -41,46 +43,18 @@ public class SecurityConfig {
                     "/api/repair-shops/*"
                 ).permitAll()
 
-                // 내 정비소 조회
-                .requestMatchers(
-                    "/api/repair-shops/my"
-                ).hasRole("SHOP")
-
-                // 정비 항목
-                // 조회는 누구나 가능
+                // 정비 항목 조회
                 .requestMatchers(
                     org.springframework.http.HttpMethod.GET,
                     "/api/repair-items/shop/**"
                 ).permitAll()
 
-                // 등록은 SHOP
-                .requestMatchers(
-                    org.springframework.http.HttpMethod.POST,
-                    "/api/repair-items/shop/**"
-                ).hasRole("SHOP")
-
-                // 수정 / 삭제는 SHOP
-                .requestMatchers(
-                    org.springframework.http.HttpMethod.PUT,
-                    "/api/repair-items/**"
-                ).hasRole("SHOP")
-
-                .requestMatchers(
-                    org.springframework.http.HttpMethod.DELETE,
-                    "/api/repair-items/**"
-                ).hasRole("SHOP")
-
-                // SHOP 예약 관리
-                .requestMatchers(
-                    "/api/reservations/shop/**",
-                    "/api/reservations/*/status"
-                ).hasRole("SHOP")
-
-                // 일반 예약 기능
+                // 예약 관련
                 .requestMatchers(
                     "/api/reservations/**"
                 ).authenticated()
 
+                // 나머지는 로그인 필요
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form.disable())
