@@ -1,19 +1,20 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function ReservationPage() {
     const { loginUser } = useAuth();
     const navigate = useNavigate();
-    const [shopId] = useState(1);
-    const [userId] = useState(1);
-    const [date, setDate] = useState("2026-08-20");
+    const { shopId } = useParams();
+    const [date, setDate] = useState("");
 
     const [availableTimes, setAvailableTimes] = useState([]);
     const [selectedTime, setSelectedTime] = useState(null);
 
     useEffect(() => {
+        if (!date) return;
+
         getAvailableTimes();
     }, [date]);
 
@@ -27,6 +28,8 @@ function ReservationPage() {
                     }
                 }
             );
+
+            console.log("ReservationPage 예약시간 조회:", response.data);
 
             setAvailableTimes(response.data);
             setSelectedTime(null);
@@ -52,7 +55,7 @@ function ReservationPage() {
             const response = await axios.post(
                 "http://localhost:8080/api/reservations",
                 {
-                    userId: userId,
+                    userId: loginUser.userId,
                     shopId: shopId,
                     availableTimeId: selectedTime
                 }

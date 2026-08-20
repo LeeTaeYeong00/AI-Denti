@@ -14,6 +14,7 @@ public class ReservationResponseDto {
     private Long reservationId;
 
     private Long userId;
+    private Long vehicleId;
     private Long shopId;
 
     private Long availableTimeId;
@@ -27,6 +28,11 @@ public class ReservationResponseDto {
         this.reservationId = reservation.getReservationId();
 
         this.userId = reservation.getUser().getUserId();
+
+        this.vehicleId =
+                reservation.getVehicle() != null
+                        ? reservation.getVehicle().getVehicleId()
+                        : null;
 
         this.shopId = reservation.getShop().getShopId();
 
