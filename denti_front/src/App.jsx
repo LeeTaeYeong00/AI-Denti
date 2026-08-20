@@ -13,6 +13,9 @@ import ReservationPage from './pages/ReservationPage';
 import MyReservationPage from './pages/MyReservationPage';
 import ShopReservationPage from './pages/ShopReservationPage';
 import AiAnalysisPage from './pages/ai/AiAnalysisPage';
+import AiHistoryPage from './pages/ai/AiHistoryPage';
+import AiAnalysisDetailPage from './pages/ai/AiAnalysisDetailPage';
+
 
 function App() {
     return (
@@ -24,6 +27,31 @@ function App() {
                     <Route path="/" element={<Main />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
+                    <Route
+                        path="/ai"
+                        element={
+                            <ProtectedRoute>
+                                <AiAnalysisPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/ai/history"
+                        element={
+                            <ProtectedRoute>
+                                <AiHistoryPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/ai/history/:analysisId"
+                        element={
+                            <ProtectedRoute>
+                                <AiAnalysisDetailPage />
+                            </ProtectedRoute>
+                        }
+                    />
 
                     {/* 지도 및 수리점 도메인 페이지 */}
                     <Route path="/map" element={<MapPage />} />

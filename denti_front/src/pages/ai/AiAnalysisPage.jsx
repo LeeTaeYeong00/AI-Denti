@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import axios from 'axios'
+import { analyzeImage } from '../../api/aiAPI'
 
 const DAMAGE_LABEL_KR = {
-  Breakage_3: '파손',
-  Crushed_2: '찌그러짐',
-  Scratch_0: '스크래치',
-  Seperated_1: '이격',
+  BREAKAGE: '파손',
+  CRUSHED: '찌그러짐',
+  SCRATCH: '스크래치',
+  SEPARATED: '이격',
 }
 
 export default function AiAnalysisPage() {
@@ -34,8 +34,8 @@ export default function AiAnalysisPage() {
     setLoading(true)
     setError(null)
     try {
-      const response = await axios.post('/api/test/analyze', formData)
-      setResult(response.data)
+      const data = await analyzeImage(formData)
+      setResult(data)
     } catch (err) {
       setError('분석 요청 실패 - 서버 연결 상태를 확인해주세요.')
     } finally {
@@ -64,15 +64,17 @@ export default function AiAnalysisPage() {
               <tr style={{ borderBottom: '2px solid #333' }}>
                 <th style={{ textAlign: 'left', padding: '8px' }}>파손 유형</th>
                 <th style={{ textAlign: 'right', padding: '8px' }}>파손 영역(px)</th>
+                <th style={{ textAlign: 'right', padding: '8px' }}>파손 비율</th>
                 <th style={{ textAlign: 'right', padding: '8px' }}>예상 견적</th>
               </tr>
             </thead>
             <tbody>
-              {Object.entries(result.details).map(([key, value]) => (
-                <tr key={key} style={{ borderBottom: '1px solid #ddd' }}>
-                  <td style={{ padding: '8px' }}>{DAMAGE_LABEL_KR[key] ?? key}</td>
-                  <td style={{ textAlign: 'right', padding: '8px' }}>{value.pixelArea.toLocaleString()}</td>
-                  <td style={{ textAlign: 'right', padding: '8px' }}>{value.estimatedCost.toLocaleString()}원</td>
+              {result.details.map((d) => (
+                <tr key={d.damageType} style={{ borderBottom: '1px solid #ddd' }}>
+                  <td style={{ padding: '8px' }}>{DAMAGE_LABEL_KR[d.damageType] ?? d.damageType}</td>
+                  <td style={{ textAlign: 'right', padding: '8px' }}>{d.pixelArea.toLocaleString()}</td>
+                  <td style={{ textAlign: 'right', padding: '8px' }}>{d.damagePercentage}%</td>
+                  <td style={{ textAlign: 'right', padding: '8px' }}>{d.estimatedCost.toLocaleString()}원</td>
                 </tr>
               ))}
             </tbody>
