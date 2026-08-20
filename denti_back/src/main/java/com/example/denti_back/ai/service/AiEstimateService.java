@@ -1,5 +1,8 @@
 package com.example.denti_back.ai.service;
 
+import com.example.denti_back.ai.dto.AiAnalysisDetailResponse;
+import com.example.denti_back.ai.dto.AiAnalysisResponse;
+import com.example.denti_back.ai.dto.AiAnalysisSummaryResponse;
 import com.example.denti_back.ai.entity.AiAnalysis;
 import com.example.denti_back.ai.entity.AiAnalysisDetail;
 import com.example.denti_back.ai.entity.AiAnalysisImage;
@@ -7,6 +10,7 @@ import com.example.denti_back.ai.enums.DamageType;
 import com.example.denti_back.ai.repository.AiAnalysisDetailRepository;
 import com.example.denti_back.ai.repository.AiAnalysisImageRepository;
 import com.example.denti_back.ai.repository.AiAnalysisRepository;
+import com.example.denti_back.member.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -20,14 +24,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AiEstimateService {
 
-    private static final int TOTAL_PIXELS = 256 * 256; // Flask 전처리 리사이즈 기준
+    private static final int TOTAL_PIXELS = 256 * 256;
 
     private final RestTemplate restTemplate;
     private final AiAnalysisRepository aiAnalysisRepository;
@@ -40,7 +46,6 @@ public class AiEstimateService {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    // Flask 호출 (기존 그대로, 프론트 테스트 페이지도 이 메서드 계속 사용)
     public Map<String, Object> requestAnalysis(MultipartFile image) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -58,9 +63,8 @@ public class AiEstimateService {
         return restTemplate.postForObject(aiServerUrl + "/analyze", requestEntity, Map.class);
     }
 
-    // Flask 호출 + 이미지 저장 + DB 저장 (퍼센트 포함)
     @Transactional
-    public AiAnalysis analyzeAndSave(MultipartFile image) throws IOException {
+    public AiAnalysisResponse analyzeAndSave(MultipartFile image, User user) throws IOException {
         Map<String, Object> response = requestAnalysis(image);
 
         @SuppressWarnings("unchecked")
@@ -68,17 +72,16 @@ public class AiEstimateService {
         int totalCost = ((Number) response.get("totalCost")).intValue();
 
         AiAnalysis analysis = new AiAnalysis();
+        analysis.setUser(user);
         analysis.setTotalCost(totalCost);
         aiAnalysisRepository.save(analysis);
 
-        // 이미지 저장
         String savedPath = saveImageToDisk(image);
         AiAnalysisImage analysisImage = new AiAnalysisImage();
         analysisImage.setAnalysis(analysis);
         analysisImage.setImageUrl(savedPath);
         aiAnalysisImageRepository.save(analysisImage);
 
-        // 상세 결과 저장 (퍼센트 포함)
         for (String key : details.keySet()) {
             @SuppressWarnings("unchecked")
             Map<String, Object> detailData = (Map<String, Object>) details.get(key);
@@ -93,11 +96,49 @@ public class AiEstimateService {
             aiAnalysisDetailRepository.save(detail);
         }
 
-        return analysis;
+        return toResponse(analysis);
+    }
+
+    public List<AiAnalysisSummaryResponse> getHistory(User user) {
+        return aiAnalysisRepository.findByUserOrderByCreatedAtDesc(user).stream()
+                .map(analysis -> {
+                    List<AiAnalysisImage> images = aiAnalysisImageRepository.findByAnalysis(analysis);
+                    String thumbnail = images.isEmpty() ? null : images.get(0).getImageUrl();
+                    return new AiAnalysisSummaryResponse(
+                            analysis.getAnalysisId(),
+                            analysis.getTotalCost(),
+                            analysis.getCreatedAt(),
+                            thumbnail
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+    public AiAnalysisResponse getDetail(Long analysisId, User user) {
+        AiAnalysis analysis = aiAnalysisRepository.findById(analysisId)
+                .orElseThrow(() -> new IllegalArgumentException("분석 결과를 찾을 수 없습니다."));
+
+        if (!analysis.getUser().getUserId().equals(user.getUserId())) {
+            throw new IllegalArgumentException("본인의 분석 결과만 조회할 수 있습니다.");
+        }
+
+        return toResponse(analysis);
+    }
+
+    private AiAnalysisResponse toResponse(AiAnalysis analysis) {
+        List<String> imageUrls = aiAnalysisImageRepository.findByAnalysis(analysis).stream()
+                .map(AiAnalysisImage::getImageUrl)
+                .collect(Collectors.toList());
+
+        List<AiAnalysisDetailResponse> details = aiAnalysisDetailRepository.findByAnalysis(analysis).stream()
+                .map(d -> new AiAnalysisDetailResponse(d.getDamageType(), d.getPixelArea(), d.getEstimatedCost(), d.getDamagePercentage()))
+                .collect(Collectors.toList());
+
+        return new AiAnalysisResponse(analysis.getAnalysisId(), analysis.getTotalCost(), analysis.getCreatedAt(), imageUrls, details);
     }
 
     private double calculatePercentage(int pixelArea) {
-        return Math.round((pixelArea / (double) TOTAL_PIXELS) * 1000) / 10.0; // 소수점 1자리
+        return Math.round((pixelArea / (double) TOTAL_PIXELS) * 1000) / 10.0;
     }
 
     private String saveImageToDisk(MultipartFile image) throws IOException {
