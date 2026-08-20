@@ -13,6 +13,10 @@ import com.example.denti_back.reservation.entity.Reservation;
 import com.example.denti_back.reservation.enums.ReservationStatus;
 import com.example.denti_back.reservation.repository.AvailableTimeRepository;
 import com.example.denti_back.reservation.repository.ReservationRepository;
+import com.example.denti_back.shop.entity.RepairItem;
+import com.example.denti_back.shop.entity.RepairShopHour;
+import com.example.denti_back.shop.repository.RepairItemRepository;
+import com.example.denti_back.shop.repository.RepairShopHourRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -24,6 +28,8 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final AvailableTimeRepository availableTimeRepository;
+    private final RepairShopHourRepository repairShopHourRepository;
+    private final RepairItemRepository repairItemRepository;
     
 
     @PersistenceContext
@@ -38,9 +44,10 @@ public class ReservationService {
                         new IllegalArgumentException("예약 가능 시간을 찾을 수 없습니다."));
 
         boolean alreadyReserved = reservationRepository
-                .existsByUser_UserIdAndAvailableTime_AvailableTimeId(
+                .existsByUser_UserIdAndAvailableTime_AvailableTimeIdAndStatusNot(
                         request.getUserId(),
-                        request.getAvailableTimeId()
+                        request.getAvailableTimeId(),
+                        ReservationStatus.CANCELLED
                 );
 
         if (alreadyReserved) {
@@ -58,7 +65,39 @@ public class ReservationService {
             throw new IllegalArgumentException("정비소 정보가 일치하지 않습니다.");
         }
 
+        RepairShopHour shopHour = repairShopHourRepository
+                .findByShop_ShopIdAndDayOfWeek(
+                        availableTime.getShop().getShopId(),
+                        availableTime.getAvailableDate().getDayOfWeek()
+                )
+                .orElseThrow(() ->
+                        new IllegalStateException(
+                                "해당 날짜에는 정비소가 운영되지 않습니다."
+                        ));
+
+        if (availableTime.getAvailableTime().isBefore(shopHour.getOpenTime())
+                || !availableTime.getAvailableTime().isBefore(shopHour.getCloseTime())) {
+
+            throw new IllegalStateException(
+                    "정비소 영업시간 외에는 예약할 수 없습니다."
+            );
+        }
+
+        RepairItem repairItem = repairItemRepository
+                .findById(request.getItemId())
+                .orElseThrow(() ->
+                        new IllegalArgumentException("정비 항목을 찾을 수 없습니다."));
+
+        if (!repairItem.getShop().getShopId()
+                .equals(request.getShopId())) {
+
+            throw new IllegalArgumentException(
+                    "정비 항목과 정비소 정보가 일치하지 않습니다."
+            );
+        }
+
         Reservation reservation = new Reservation();
+        reservation.setRepairItem(repairItem);
 
         User user = entityManager.getReference(
                 User.class,
