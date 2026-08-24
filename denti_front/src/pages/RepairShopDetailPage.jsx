@@ -6,6 +6,7 @@ import ShopReviewSection from "../components/review/ShopReviewSection";
 import MyReviewSection from "../components/review/MyReviewSection";
 import { getRepairItemsByShop } from "../api/repairItemAPI";
 import { getRepairShopHours } from "../api/repairShopHourAPI";
+import FavoriteButton from "../components/favorite/FavoriteButton";
 
 function RepairShopDetailPage() {
     const { shopId } = useParams();
@@ -182,6 +183,8 @@ function RepairShopDetailPage() {
     return (
         <div>
             <h1>{shop.shopName || "정비소"}</h1>
+            
+            <FavoriteButton shopId={shop.shopId} />
 
             <div>
                 <h2>정비소 정보</h2>
