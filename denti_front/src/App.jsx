@@ -13,6 +13,7 @@ import RepairShopDetailPage from './pages/RepairShopDetailPage';
 import ReservationPage from './pages/ReservationPage';
 import MyReservationPage from './pages/MyReservationPage';
 import RepairHistoryPage from './pages/RepairHistoryPage';
+import VehiclePage from './pages/VehiclePage';
 import ShopReservationPage from './pages/ShopReservationPage';
 import AiAnalysisPage from './pages/ai/AiAnalysisPage';
 import AiHistoryPage from './pages/ai/AiHistoryPage';
@@ -29,14 +30,6 @@ function App() {
                     <Route path="/" element={<Main />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
-                    <Route
-                        path="/ai"
-                        element={
-                            <ProtectedRoute>
-                                <AiAnalysisPage />
-                            </ProtectedRoute>
-                        }
-                    />
                     <Route
                         path="/ai/history"
                         element={
@@ -72,6 +65,15 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <MyReservationPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/vehicles"
+                        element={
+                            <ProtectedRoute>
+                                <VehiclePage />
                             </ProtectedRoute>
                         }
                     />
