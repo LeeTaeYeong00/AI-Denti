@@ -76,7 +76,12 @@ public class AuthController {
         var user = userDetails.getUser();
 
         return ResponseEntity.ok(new LoginUserResponse(
-                user.getUserId(), user.getEmail(), user.getNickName(), user.getRole().name()
+                user.getUserId(),
+                user.getUsername(),
+                user.getName(),
+                user.getEmail(),
+                user.getNickName(),
+                user.getRole().name()
         ));
     }
 }

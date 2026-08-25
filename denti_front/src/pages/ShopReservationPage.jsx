@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { getMyRepairShop } from "../api/repairShopAPI";
+import { getShopReservations, updateReservationStatus } from "../api/reservationAPI";
 
 const STATUS_LABEL = {
     PENDING: "대기중",
@@ -27,24 +28,19 @@ function ShopReservationPage() {
     useEffect(() => {
         if (!loginUser) return;
 
-        const getMyRepairShop = async () => {
+        const loadMyRepairShop = async () => {
             try {
-                const response = await axios.get(
-                    "http://localhost:8080/api/repair-shops/my",
-                    {
-                        withCredentials: true,
-                    }
-                );
+                const data = await getMyRepairShop();
 
-                console.log("내 정비소:", response.data);
+                console.log("내 정비소:", data);
 
-                setShopId(response.data.shopId);
+                setShopId(data.shopId);
             } catch (error) {
                 console.error("내 정비소 조회 실패:", error);
             }
         };
 
-        getMyRepairShop();
+        loadMyRepairShop();
     }, [loginUser]);
 
     const [reservations, setReservations] = useState([]);
@@ -52,45 +48,31 @@ function ShopReservationPage() {
     useEffect(() => {
         if (!shopId) return;
 
-        const getReservations = async () => {
+        const loadReservations = async () => {
             try {
-                const response = await axios.get(
-                    `http://localhost:8080/api/reservations/shop/${shopId}`,
-                    {
-                        withCredentials: true,
-                    }
-                );
+                const data = await getShopReservations(shopId);
 
-                console.log("정비소 예약 목록:", response.data);
+                console.log("정비소 예약 목록:", data);
 
-                setReservations(response.data);
+                setReservations(data);
             } catch (error) {
                 console.error("정비소 예약 목록 조회 실패:", error);
             }
         };
 
-        getReservations();
+        loadReservations();
     }, [shopId]);
 
     const updateStatus = async (reservationId, status) => {
         try {
-            const response = await axios.put(
-                `http://localhost:8080/api/reservations/${reservationId}/status`,
-                null,
-                {
-                    params: {
-                        status: status,
-                    },
-                    withCredentials: true,
-                }
-            );
+            const data = await updateReservationStatus(reservationId, status);
 
-            console.log("예약 상태 변경:", response.data);
+            console.log("예약 상태 변경:", data);
 
             setReservations((prev) =>
                 prev.map((reservation) =>
                     reservation.reservationId === reservationId
-                        ? response.data
+                        ? data
                         : reservation
                 )
             );

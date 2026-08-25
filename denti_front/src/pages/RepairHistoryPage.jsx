@@ -12,9 +12,7 @@ function RepairHistoryPage() {
 
         const loadHistories = async () => {
             try {
-                const data = await getRepairHistoriesByUser(
-                    loginUser.userId
-                );
+                const data = await getRepairHistoriesByUser(loginUser.userId);
 
                 console.log("내 정비 이력:", data);
 
@@ -23,10 +21,7 @@ function RepairHistoryPage() {
                 console.error("정비 이력 조회 실패:", error);
 
                 if (error.response) {
-                    console.log(
-                        "서버 응답:",
-                        error.response.data
-                    );
+                    console.log("서버 응답:", error.response.data);
                 }
 
                 setHistories([]);

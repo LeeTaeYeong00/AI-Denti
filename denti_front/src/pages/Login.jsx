@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { login, getLoginUser } from '../api/accountAPI';
-import { useAuth } from '../context/AuthContext';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { login, getLoginUser } from "../api/accountAPI";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
     const navigate = useNavigate();
     const { setLoginUser } = useAuth();
-    const [loginData, setLoginData] = useState({ username: '', password: '' });
-    const [error, setError] = useState('');
+    const [loginData, setLoginData] = useState({ username: "", password: "" });
+    const [error, setError] = useState("");
 
     const handleChange = (e) => {
         setLoginData({ ...loginData, [e.target.name]: e.target.value });
@@ -15,14 +15,14 @@ export default function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
+        setError("");
         try {
             await login(loginData);
             const user = await getLoginUser();
             setLoginUser(user);
-            navigate('/');
+            navigate("/");
         } catch (err) {
-            setError('아이디 또는 비밀번호가 올바르지 않습니다.');
+            setError("아이디 또는 비밀번호가 올바르지 않습니다.");
         }
     };
 

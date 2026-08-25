@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import { getRepairShopAddresses } from "../api/repairShopAPI";
 
 function MapPage() {
     const mapContainer = useRef(null);
@@ -11,13 +11,11 @@ function MapPage() {
     useEffect(() => {
         const getAddresses = async () => {
             try {
-                const response = await axios.get(
-                    "http://localhost:8080/api/repair-shop-addresses"
-                );
+                const data = await getRepairShopAddresses();
 
-                console.log("주소 데이터:", response.data);
+                console.log("주소 데이터:", data);
 
-                setAddresses(response.data);
+                setAddresses(data);
             } catch (error) {
                 console.error("주소 조회 실패:", error);
             }

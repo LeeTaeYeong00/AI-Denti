@@ -1,6 +1,6 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { logout } from '../api/accountAPI';
-import { useAuth } from '../context/AuthContext';
+import { Link, useNavigate } from "react-router-dom";
+import { logout } from "../api/accountAPI";
+import { useAuth } from "../context/AuthContext";
 
 export default function NavBar() {
     const { loginUser, setLoginUser } = useAuth();
@@ -9,7 +9,7 @@ export default function NavBar() {
     const handleLogout = async () => {
         await logout();
         setLoginUser(null);
-        navigate('/');
+        navigate("/");
     };
 
     return (
@@ -46,6 +46,7 @@ export default function NavBar() {
                     <Link to="/map" className="nav-main__link">정비소 지도</Link>
                     {loginUser && (
                         <>
+                            <Link to="/mypage" className="nav-main__link">마이페이지</Link>
                             <Link to="/my-reservations" className="nav-main__link">내 예약</Link>
                             <Link to="/repair-history" className="nav-main__link">정비 이력</Link>
                             <Link to="/ai" className="nav-main__link">AI 분석</Link>
