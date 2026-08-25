@@ -15,12 +15,13 @@ function ReviewWritePage() {
   }
 
   return (
-    <div>
-      <h1>리뷰 작성</h1>
-
-      <div>
-        <h2>예약 정보</h2>
-        <p>예약 번호: {reservationId}</p>
+    <div className="page" style={{ maxWidth: 560 }}>
+      <div className="page-header">
+        <span className="eyebrow">REVIEW</span>
+        <h1 style={{ fontSize: 28 }}>리뷰 작성</h1>
+        <p style={{ marginTop: 6, fontFamily: 'var(--font-mono)', fontSize: 13 }}>
+          예약 번호 #{reservationId}
+        </p>
       </div>
 
       <ReviewForm

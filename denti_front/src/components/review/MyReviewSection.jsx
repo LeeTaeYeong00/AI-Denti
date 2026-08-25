@@ -129,15 +129,15 @@ function MyReviewSection({ currentUserId }) {
   }
 
   if (!currentUserId) {
-    return <p>로그인 후 내 리뷰를 확인할 수 있습니다.</p>
+    return <p style={{ fontSize: 14 }}>로그인 후 내 리뷰를 확인할 수 있습니다.</p>
   }
 
   if (loading) {
-    return <p>내 리뷰를 불러오는 중입니다.</p>
+    return <p style={{ fontSize: 14 }}>내 리뷰를 불러오는 중입니다.</p>
   }
 
   if (error) {
-    return <p>{error}</p>
+    return <p className="form-error">{error}</p>
   }
 
   if (!reviewData) {
@@ -146,13 +146,14 @@ function MyReviewSection({ currentUserId }) {
 
   return (
     <section>
-      <div>
-        <h2>내가 작성한 리뷰</h2>
-        <p>총 {reviewData.reviewCount}개</p>
+      <div className="section-title-row">
+        <span style={{ fontSize: 13, color: 'var(--color-ink-soft)' }}>
+          총 {reviewData.reviewCount}개
+        </span>
       </div>
 
       {reviewData.reviews.length === 0 ? (
-        <p>아직 작성한 리뷰가 없습니다.</p>
+        <div className="empty-state">아직 작성한 리뷰가 없습니다.</div>
       ) : (
         <div>
           {reviewData.reviews.map((review) => (
@@ -179,13 +180,15 @@ function MyReviewSection({ currentUserId }) {
 
                   <button
                     type="button"
+                    className="btn btn-ghost btn-sm"
+                    style={{ marginTop: -8, marginBottom: 8 }}
                     onClick={() =>
                       navigate(
                         `/repair-shops/${review.shopId}`,
                       )
                     }
                   >
-                    {review.shopName} 상세보기
+                    {review.shopName} 상세보기 →
                   </button>
                 </>
               )}
@@ -194,9 +197,10 @@ function MyReviewSection({ currentUserId }) {
         </div>
       )}
 
-      <div>
+      <div className="pager">
         <button
           type="button"
+          className="btn btn-ghost btn-sm"
           disabled={page === 0}
           onClick={() =>
             setPage((previous) => previous - 1)
@@ -214,6 +218,7 @@ function MyReviewSection({ currentUserId }) {
 
         <button
           type="button"
+          className="btn btn-ghost btn-sm"
           disabled={
             page + 1 >= reviewData.totalPages
           }

@@ -44,42 +44,65 @@ export default function AiAnalysisPage() {
   }
 
   return (
-    <div style={{ padding: '40px', maxWidth: '700px', margin: '0 auto' }}>
-      <h1>🔧 AI 파손 분석</h1>
-      <div style={{ margin: '20px 0' }}>
-        <input type="file" accept="image/*" onChange={handleFileChange} />
+    <div className="page" style={{ maxWidth: 640 }}>
+      <div className="page-header">
+        <span className="eyebrow">AI DIAGNOSIS</span>
+        <h1 style={{ fontSize: 28 }}>AI 파손 분석</h1>
+        <p style={{ marginTop: 6 }}>차량 사진을 올리면 파손 부위와 예상 수리비를 분석해드려요.</p>
       </div>
-      {previewUrl && (
-        <img src={previewUrl} alt="미리보기" style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '8px', marginBottom: '20px' }} />
-      )}
-      <button onClick={handleSubmit} disabled={loading || !file} style={{ padding: '10px 20px', fontSize: '16px', cursor: loading ? 'not-allowed' : 'pointer' }}>
-        {loading ? '분석 중...' : '분석 요청'}
-      </button>
-      {error && <p style={{ color: 'red', marginTop: '16px' }}>{error}</p>}
+
+      <div className="card" style={{ textAlign: 'center' }}>
+        <input type="file" accept="image/*" onChange={handleFileChange} style={{ marginBottom: 20 }} />
+
+        {previewUrl && (
+          <div className="scan-frame" style={{ marginBottom: 20 }}>
+            <span className="scan-frame__corner scan-frame__corner--tl" />
+            <span className="scan-frame__corner scan-frame__corner--tr" />
+            <span className="scan-frame__corner scan-frame__corner--bl" />
+            <span className="scan-frame__corner scan-frame__corner--br" />
+            <img
+              src={previewUrl}
+              alt="미리보기"
+              style={{ maxWidth: '100%', maxHeight: 300, borderRadius: 8, display: 'block' }}
+            />
+          </div>
+        )}
+
+        <div>
+          <button className="btn btn-primary" onClick={handleSubmit} disabled={loading || !file}>
+            {loading ? '분석 중...' : '분석 요청'}
+          </button>
+        </div>
+
+        {error && <p className="form-error">{error}</p>}
+      </div>
+
       {result && (
-        <div style={{ marginTop: '30px', textAlign: 'left' }}>
-          <h3>분석 결과</h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className="card" style={{ textAlign: 'left', marginTop: 16 }}>
+          <h3 style={{ marginBottom: 16 }}>분석 결과</h3>
+
+          <table className="table">
             <thead>
-              <tr style={{ borderBottom: '2px solid #333' }}>
-                <th style={{ textAlign: 'left', padding: '8px' }}>파손 유형</th>
-                <th style={{ textAlign: 'right', padding: '8px' }}>파손 영역(px)</th>
-                <th style={{ textAlign: 'right', padding: '8px' }}>파손 비율</th>
-                <th style={{ textAlign: 'right', padding: '8px' }}>예상 견적</th>
+              <tr>
+                <th>파손 유형</th>
+                <th className="num">파손 영역(px)</th>
+                <th className="num">파손 비율</th>
+                <th className="num">예상 견적</th>
               </tr>
             </thead>
             <tbody>
               {result.details.map((d) => (
-                <tr key={d.damageType} style={{ borderBottom: '1px solid #ddd' }}>
-                  <td style={{ padding: '8px' }}>{DAMAGE_LABEL_KR[d.damageType] ?? d.damageType}</td>
-                  <td style={{ textAlign: 'right', padding: '8px' }}>{d.pixelArea.toLocaleString()}</td>
-                  <td style={{ textAlign: 'right', padding: '8px' }}>{d.damagePercentage}%</td>
-                  <td style={{ textAlign: 'right', padding: '8px' }}>{d.estimatedCost.toLocaleString()}원</td>
+                <tr key={d.damageType}>
+                  <td>{DAMAGE_LABEL_KR[d.damageType] ?? d.damageType}</td>
+                  <td className="num">{d.pixelArea.toLocaleString()}</td>
+                  <td className="num">{d.damagePercentage}%</td>
+                  <td className="num">{d.estimatedCost.toLocaleString()}원</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <p style={{ marginTop: '16px', fontSize: '20px', fontWeight: 'bold', textAlign: 'right' }}>
+
+          <p style={{ marginTop: 16, fontSize: 20, fontWeight: 700, textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
             총 예상 수리비: {result.totalCost.toLocaleString()}원
           </p>
         </div>
