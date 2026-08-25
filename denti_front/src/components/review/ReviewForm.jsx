@@ -134,14 +134,16 @@ function ReviewForm({
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h3>{isUpdate ? '리뷰 수정' : '리뷰 작성'}</h3>
+    <form onSubmit={handleSubmit} className="card">
+      <h3 style={{ marginBottom: 16 }}>{isUpdate ? '리뷰 수정' : '리뷰 작성'}</h3>
 
-      <div>
-        <label htmlFor="review-rating">별점</label>
+      <div className="field">
+        <label className="field-label" htmlFor="review-rating">별점</label>
 
         <select
           id="review-rating"
+          className="select"
+          style={{ maxWidth: 120 }}
           value={rating}
           onChange={(event) =>
             setRating(Number(event.target.value))
@@ -155,11 +157,12 @@ function ReviewForm({
         </select>
       </div>
 
-      <div>
-        <label htmlFor="review-content">리뷰 내용</label>
+      <div className="field">
+        <label className="field-label" htmlFor="review-content">리뷰 내용</label>
 
         <textarea
           id="review-content"
+          className="textarea"
           value={content}
           rows={5}
           onChange={(event) =>
@@ -168,8 +171,8 @@ function ReviewForm({
         />
       </div>
 
-      <div>
-        <label htmlFor="review-images">
+      <div className="field">
+        <label className="field-label" htmlFor="review-images">
           리뷰 이미지
         </label>
 
@@ -182,7 +185,7 @@ function ReviewForm({
         />
 
         {files.length > 0 && (
-          <ul>
+          <ul style={{ margin: '8px 0 0', paddingLeft: 18, fontSize: 13, color: 'var(--color-ink-soft)' }}>
             {files.map((file) => (
               <li key={`${file.name}-${file.lastModified}`}>
                 {file.name}
@@ -191,26 +194,28 @@ function ReviewForm({
           </ul>
         )}
 
-        <p>
+        <p style={{ fontSize: 12, color: 'var(--color-ink-faint)', marginTop: 6 }}>
           이미지 {files.length}장 선택됨 / 최대 5장
         </p>
       </div>
 
-      {error && <p>{error}</p>}
+      {error && <p className="form-error">{error}</p>}
 
-      <button type="submit" disabled={submitting}>
-        {submitting
-          ? '저장 중...'
-          : isUpdate
-            ? '수정 완료'
-            : '리뷰 등록'}
-      </button>
-
-      {onCancel && (
-        <button type="button" onClick={onCancel}>
-          취소
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button type="submit" className="btn btn-primary" disabled={submitting}>
+          {submitting
+            ? '저장 중...'
+            : isUpdate
+              ? '수정 완료'
+              : '리뷰 등록'}
         </button>
-      )}
+
+        {onCancel && (
+          <button type="button" className="btn btn-outline" onClick={onCancel}>
+            취소
+          </button>
+        )}
+      </div>
     </form>
   )
 }

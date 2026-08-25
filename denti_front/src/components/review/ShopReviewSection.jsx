@@ -116,11 +116,11 @@ function ShopReviewSection({ shopId, currentUserId }) {
   }
 
   if (loading) {
-    return <p>리뷰를 불러오는 중입니다.</p>
+    return <p style={{ fontSize: 14 }}>리뷰를 불러오는 중입니다.</p>
   }
 
   if (error) {
-    return <p>{error}</p>
+    return <p className="form-error">{error}</p>
   }
 
   if (!reviewData) {
@@ -129,18 +129,21 @@ function ShopReviewSection({ shopId, currentUserId }) {
 
   return (
     <section>
-      <div>
+      <div className="section-title-row">
         <h2>방문자 리뷰</h2>
 
-        <strong>
-          ★ {reviewData.averageRating?.toFixed(1) ?? '0.0'}
-        </strong>
-
-        <span> 리뷰 {reviewData.reviewCount}개</span>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+          <strong style={{ fontFamily: 'var(--font-mono)', fontSize: 20, color: 'var(--color-signal-hover)' }}>
+            ★ {reviewData.averageRating?.toFixed(1) ?? '0.0'}
+          </strong>
+          <span style={{ fontSize: 13, color: 'var(--color-ink-soft)' }}>
+            리뷰 {reviewData.reviewCount}개
+          </span>
+        </div>
       </div>
 
       {reviewData.reviews.length === 0 ? (
-        <p>아직 작성된 리뷰가 없습니다.</p>
+        <div className="empty-state">아직 작성된 리뷰가 없습니다.</div>
       ) : (
         <div>
           {reviewData.reviews.map((review) => (
@@ -166,9 +169,10 @@ function ShopReviewSection({ shopId, currentUserId }) {
         </div>
       )}
 
-      <div>
+      <div className="pager">
         <button
           type="button"
+          className="btn btn-ghost btn-sm"
           disabled={page === 0}
           onClick={() => setPage((previous) => previous - 1)}
         >
@@ -184,6 +188,7 @@ function ShopReviewSection({ shopId, currentUserId }) {
 
         <button
           type="button"
+          className="btn btn-ghost btn-sm"
           disabled={page + 1 >= reviewData.totalPages}
           onClick={() => setPage((previous) => previous + 1)}
         >

@@ -18,29 +18,51 @@ export default function AiHistoryPage() {
     load()
   }, [])
 
-  if (loading) return <p>불러오는 중...</p>
+  if (loading) {
+    return (
+      <div className="page">
+        <p style={{ textAlign: 'center' }}>불러오는 중...</p>
+      </div>
+    )
+  }
 
   return (
-    <div style={{ padding: '40px', maxWidth: '700px', margin: '0 auto' }}>
-      <h1>내 분석 이력</h1>
-      {history.length === 0 && <p>아직 분석한 내역이 없습니다.</p>}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {history.map((item) => (
-          <Link
-            key={item.analysisId}
-            to={`/ai/history/${item.analysisId}`}
-            style={{ display: 'flex', gap: '16px', border: '1px solid #ddd', borderRadius: '8px', padding: '12px', textDecoration: 'none', color: 'black' }}
-          >
-            {item.thumbnailUrl && (
-              <img src={`http://localhost:8080${item.thumbnailUrl}`} alt="분석 이미지" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '6px' }} />
-            )}
-            <div>
-              <p>{new Date(item.createdAt).toLocaleString()}</p>
-              <p style={{ fontWeight: 'bold' }}>{item.totalCost.toLocaleString()}원</p>
-            </div>
-          </Link>
-        ))}
+    <div className="page" style={{ maxWidth: 640 }}>
+      <div className="page-header">
+        <span className="eyebrow">AI DIAGNOSIS</span>
+        <h1 style={{ fontSize: 28 }}>내 분석 이력</h1>
       </div>
+
+      {history.length === 0 ? (
+        <div className="empty-state">아직 분석한 내역이 없습니다.</div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {history.map((item) => (
+            <Link
+              key={item.analysisId}
+              to={`/ai/history/${item.analysisId}`}
+              className="card card--hover"
+              style={{ display: 'flex', gap: 16, alignItems: 'center', textDecoration: 'none', color: 'inherit' }}
+            >
+              {item.thumbnailUrl && (
+                <img
+                  src={`http://localhost:8080${item.thumbnailUrl}`}
+                  alt="분석 이미지"
+                  style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 8, flex: 'none' }}
+                />
+              )}
+              <div>
+                <p style={{ fontSize: 12, color: 'var(--color-ink-faint)', fontFamily: 'var(--font-mono)', marginBottom: 4 }}>
+                  {new Date(item.createdAt).toLocaleString()}
+                </p>
+                <p style={{ fontWeight: 700, fontSize: 17, color: 'var(--color-ink)', fontFamily: 'var(--font-mono)' }}>
+                  {item.totalCost.toLocaleString()}원
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
