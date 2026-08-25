@@ -37,55 +37,76 @@ function RepairHistoryPage() {
     }, [loginUser]);
 
     if (!loginUser) {
-        return <div>로그인 후 이용해주세요.</div>;
+        return (
+            <div className="page">
+                <div className="empty-state">로그인 후 이용해주세요.</div>
+            </div>
+        );
     }
 
     return (
-        <div>
-            <h1>내 정비 이력</h1>
+        <div className="page">
+            <div className="page-header">
+                <span className="eyebrow">MY GARAGE</span>
+                <h1 style={{ fontSize: 28 }}>내 정비 이력</h1>
+            </div>
 
             {histories.length === 0 ? (
-                <p>정비 이력이 없습니다.</p>
+                <div className="empty-state">정비 이력이 없습니다.</div>
             ) : (
                 histories.map((history) => (
-                    <div key={history.repairHistoryId}>
-                        <p>
-                            정비 이력 번호:{" "}
-                            {history.repairHistoryId}
-                        </p>
+                    <div className="card" key={history.repairHistoryId}>
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "flex-start",
+                                gap: 12,
+                                flexWrap: "wrap",
+                            }}
+                        >
+                            <div>
+                                <p
+                                    style={{
+                                        fontFamily: "var(--font-mono)",
+                                        fontSize: 12,
+                                        color: "var(--color-ink-faint)",
+                                        marginBottom: 6,
+                                    }}
+                                >
+                                    정비 이력 #{history.repairHistoryId} · 예약 #{history.reservationId}
+                                </p>
+                                <h3 style={{ marginBottom: 4 }}>{history.description}</h3>
+                                <p style={{ fontSize: 13 }}>정비일 {history.repairedAt}</p>
+                            </div>
 
-                        <p>
-                            차량 ID: {history.vehicleId}
-                        </p>
+                            <p
+                                style={{
+                                    fontFamily: "var(--font-mono)",
+                                    fontWeight: 700,
+                                    fontSize: 18,
+                                    color: "var(--color-ink)",
+                                }}
+                            >
+                                {history.repairPrice?.toLocaleString()}원
+                            </p>
+                        </div>
 
-                        <p>
-                            예약 번호: {history.reservationId}
-                        </p>
+                        <hr className="divider" />
 
-                        <p>
-                            정비소 ID: {history.shopId}
-                        </p>
-
-                        <p>
-                            정비 항목 ID: {history.itemId}
-                        </p>
-
-                        <p>
-                            정비 내용:{" "}
-                            {history.description}
-                        </p>
-
-                        <p>
-                            정비 금액:{" "}
-                            {history.repairPrice?.toLocaleString()}원
-                        </p>
-
-                        <p>
-                            정비일:{" "}
-                            {history.repairedAt}
-                        </p>
-
-                        <hr />
+                        <div
+                            style={{
+                                display: "flex",
+                                gap: 24,
+                                flexWrap: "wrap",
+                                fontSize: 13,
+                                color: "var(--color-ink-soft)",
+                            }}
+                        >
+                            <span>차량 ID {history.vehicleId}</span>
+                            <span>정비소 ID {history.shopId}</span>
+                            <span>정비 항목 ID {history.itemId}</span>
+                        </div>
                     </div>
                 ))
             )}

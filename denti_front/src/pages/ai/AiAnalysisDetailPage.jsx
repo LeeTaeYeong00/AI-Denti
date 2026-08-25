@@ -29,48 +29,78 @@ export default function AiAnalysisDetailPage() {
     load()
   }, [analysisId])
 
-  if (loading) return <p style={{ textAlign: 'center', marginTop: '40px' }}>불러오는 중...</p>
-  if (error) return <p style={{ textAlign: 'center', marginTop: '40px', color: 'red' }}>{error}</p>
+  if (loading) {
+    return (
+      <div className="page">
+        <p style={{ textAlign: 'center' }}>불러오는 중...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="page">
+        <p className="form-error" style={{ textAlign: 'center' }}>{error}</p>
+      </div>
+    )
+  }
+
   if (!result) return null
 
   return (
-    <div style={{ padding: '40px', maxWidth: '700px', margin: '0 auto' }}>
-      <h1>분석 결과 상세</h1>
-      <p style={{ color: '#888' }}>{new Date(result.createdAt).toLocaleString()}</p>
+    <div className="page" style={{ maxWidth: 640 }}>
+      <div className="page-header">
+        <span className="eyebrow">AI DIAGNOSIS</span>
+        <h1 style={{ fontSize: 28 }}>분석 결과 상세</h1>
+        <p style={{ marginTop: 6, fontFamily: 'var(--font-mono)', fontSize: 13 }}>
+          {new Date(result.createdAt).toLocaleString()}
+        </p>
+      </div>
 
-      {result.imageUrls?.map((url) => (
-        <img
-          key={url}
-          src={`http://localhost:8080${url}`}
-          alt="분석 이미지"
-          style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '8px', margin: '16px 0' }}
-        />
-      ))}
-
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr style={{ borderBottom: '2px solid #333' }}>
-            <th style={{ textAlign: 'left', padding: '8px' }}>파손 유형</th>
-            <th style={{ textAlign: 'right', padding: '8px' }}>파손 영역(px)</th>
-            <th style={{ textAlign: 'right', padding: '8px' }}>파손 비율</th>
-            <th style={{ textAlign: 'right', padding: '8px' }}>예상 견적</th>
-          </tr>
-        </thead>
-        <tbody>
-          {result.details.map((d) => (
-            <tr key={d.damageType} style={{ borderBottom: '1px solid #ddd' }}>
-              <td style={{ padding: '8px' }}>{DAMAGE_LABEL_KR[d.damageType] ?? d.damageType}</td>
-              <td style={{ textAlign: 'right', padding: '8px' }}>{d.pixelArea.toLocaleString()}</td>
-              <td style={{ textAlign: 'right', padding: '8px' }}>{d.damagePercentage}%</td>
-              <td style={{ textAlign: 'right', padding: '8px' }}>{d.estimatedCost.toLocaleString()}원</td>
-            </tr>
+      {result.imageUrls?.length > 0 && (
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
+          {result.imageUrls.map((url) => (
+            <div className="scan-frame" key={url}>
+              <span className="scan-frame__corner scan-frame__corner--tl" />
+              <span className="scan-frame__corner scan-frame__corner--tr" />
+              <span className="scan-frame__corner scan-frame__corner--bl" />
+              <span className="scan-frame__corner scan-frame__corner--br" />
+              <img
+                src={`http://localhost:8080${url}`}
+                alt="분석 이미지"
+                style={{ maxWidth: 220, maxHeight: 220, borderRadius: 8, display: 'block' }}
+              />
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      )}
 
-      <p style={{ marginTop: '16px', fontSize: '20px', fontWeight: 'bold', textAlign: 'right' }}>
-        총 예상 수리비: {result.totalCost.toLocaleString()}원
-      </p>
+      <div className="card">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>파손 유형</th>
+              <th className="num">파손 영역(px)</th>
+              <th className="num">파손 비율</th>
+              <th className="num">예상 견적</th>
+            </tr>
+          </thead>
+          <tbody>
+            {result.details.map((d) => (
+              <tr key={d.damageType}>
+                <td>{DAMAGE_LABEL_KR[d.damageType] ?? d.damageType}</td>
+                <td className="num">{d.pixelArea.toLocaleString()}</td>
+                <td className="num">{d.damagePercentage}%</td>
+                <td className="num">{d.estimatedCost.toLocaleString()}원</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <p style={{ marginTop: 16, fontSize: 20, fontWeight: 700, textAlign: 'right', fontFamily: 'var(--font-mono)' }}>
+          총 예상 수리비: {result.totalCost.toLocaleString()}원
+        </p>
+      </div>
     </div>
   )
 }
