@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const AUTOPLAY_MS = 5000;
 
@@ -38,7 +38,7 @@ export default function PromoBanner({ slides }) {
                 <h2 className="banner__title">{slide.title}</h2>
                 {slide.subtitle && <p className="banner__subtitle">{slide.subtitle}</p>}
                 {slide.cta && slide.to && (
-                    <Link to={slide.to} style={{ display: 'inline-block', marginTop: 18 }}>
+                    <Link to={slide.to} style={{ display: "inline-block", marginTop: 18 }}>
                         <button className="btn btn-primary">{slide.cta}</button>
                     </Link>
                 )}
@@ -61,7 +61,7 @@ export default function PromoBanner({ slides }) {
                         <button
                             key={i}
                             type="button"
-                            className={`banner__dot ${i === index ? 'banner__dot--active' : ''}`}
+                            className={`banner__dot ${i === index ? "banner__dot--active" : ""}`}
                             onClick={() => goTo(i)}
                             aria-label={`${i + 1}번째 배너로 이동`}
                         />

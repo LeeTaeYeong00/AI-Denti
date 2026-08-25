@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { signup } from '../api/accountAPI';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { signup } from "../api/accountAPI";
 
 export default function Signup() {
     const navigate = useNavigate();
     const [form, setForm] = useState({
-        username: '',
-        email: '',
-        password: '',
-        name: '',
-        nickName: '',
+        username: "",
+        email: "",
+        password: "",
+        name: "",
+        nickName: "",
     });
-    const [error, setError] = useState('');
+    const [error, setError] = useState("");
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -19,13 +19,13 @@ export default function Signup() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
+        setError("");
         try {
             await signup(form);
-            alert('회원가입이 완료되었습니다. 로그인해주세요.');
-            navigate('/login');
+            alert("회원가입이 완료되었습니다. 로그인해주세요.");
+            navigate("/login");
         } catch (err) {
-            const message = err.response?.data?.message || '회원가입에 실패했습니다.';
+            const message = err.response?.data?.message || "회원가입에 실패했습니다.";
             setError(message);
         }
     };

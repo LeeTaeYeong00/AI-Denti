@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import ShopReviewSection from "../components/review/ShopReviewSection";
 import MyReviewSection from "../components/review/MyReviewSection";
 import { getRepairItemsByShop } from "../api/repairItemAPI";
 import { getRepairShopHours } from "../api/repairShopHourAPI";
+import { getRepairShopByShopId } from "../api/repairShopAPI";
+import { getAvailableTimes, createReservation } from "../api/reservationAPI";
 
 function RepairShopDetailPage() {
     const { shopId } = useParams();
@@ -25,12 +26,10 @@ function RepairShopDetailPage() {
     useEffect(() => {
         const getShop = async () => {
             try {
-                const response = await axios.get(
-                    `/api/repair-shop-addresses/shop/${shopId}`
-                );
+                const data = await getRepairShopByShopId(shopId);
 
-                console.log("정비소 상세:", response.data);
-                setShop(response.data);
+                console.log("정비소 상세:", data);
+                setShop(data);
             } catch (error) {
                 console.error("정비소 상세 조회 실패:", error);
             }
@@ -113,27 +112,20 @@ function RepairShopDetailPage() {
         if (!shop) return;
         if (!selectedDate) return;
 
-        const getAvailableTimes = async () => {
+        const loadAvailableTimes = async () => {
             try {
-                const response = await axios.get(
-                    `/api/available-times/shop/${shop.shopId}`,
-                    {
-                        params: {
-                            date: selectedDate,
-                        },
-                    }
-                );
+                const data = await getAvailableTimes(shop.shopId, selectedDate);
 
-                console.log("예약 가능 시간:", response.data);
+                console.log("예약 가능 시간:", data);
 
-                setAvailableTimes(response.data);
+                setAvailableTimes(data);
             } catch (error) {
                 console.error("예약 가능 시간 조회 실패:", error);
                 setAvailableTimes([]);
             }
         };
 
-        getAvailableTimes();
+        loadAvailableTimes();
     }, [shop, selectedDate]);
 
     // 4. 정비소 + 카카오 SDK가 모두 준비되면 지도 생성
@@ -323,23 +315,16 @@ function RepairShopDetailPage() {
                                 }
 
                                 try {
-                                    const response = await axios.post(
-                                        "http://localhost:8080/api/reservations",
-                                        {
-                                            userId: loginUser.userId,
-                                            shopId: shop.shopId,
-                                            itemId: selectedItem.itemId,
-                                            availableTimeId: selectedTime.availableTimeId,
-                                        },
-                                        {
-                                            withCredentials: true,
-                                        }
-                                    );
+                                    const data = await createReservation({
+                                        userId: loginUser.userId,
+                                        shopId: shop.shopId,
+                                        itemId: selectedItem.itemId,
+                                        availableTimeId: selectedTime.availableTimeId,
+                                    });
 
-                                    console.log("예약 성공:", response.data);
+                                    console.log("예약 성공:", data);
 
                                     alert("예약이 신청되었습니다.");
-
                                 } catch (error) {
                                     console.error("예약 신청 실패:", error);
 

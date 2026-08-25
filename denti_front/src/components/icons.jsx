@@ -2,12 +2,12 @@
 // 외부 아이콘 라이브러리 없이 사이트 톤에 맞춘 stroke 아이콘만 사용한다.
 
 const base = {
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: 'currentColor',
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
     strokeWidth: 1.8,
-    strokeLinecap: 'round',
-    strokeLinejoin: 'round',
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
 };
 
 export function ScanIcon(props) {
@@ -67,6 +67,26 @@ export function WrenchIcon(props) {
     return (
         <svg {...base} {...props}>
             <path d="M14.7 6.3a4 4 0 0 0-5.2 4.9L4 16.7 7.3 20l5.5-5.5a4 4 0 0 0 4.9-5.2l-2.6 2.6-2.6-2.6 2.2-2Z" />
+        </svg>
+    );
+}
+
+export function UserIcon(props) {
+    return (
+        <svg {...base} {...props}>
+            <circle cx="12" cy="8" r="3.5" />
+            <path d="M5 20c0-3.6 3.1-6.5 7-6.5s7 2.9 7 6.5" />
+        </svg>
+    );
+}
+
+export function CarIcon(props) {
+    return (
+        <svg {...base} {...props}>
+            <path d="M4 16v-3.5L6 7.5A2 2 0 0 1 7.9 6h8.2a2 2 0 0 1 1.9 1.5L20 12.5V16" />
+            <path d="M4 16h16v2.5a1 1 0 0 1-1 1h-1.2a1 1 0 0 1-1-1V17H7.2v1.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V16Z" />
+            <circle cx="7.5" cy="16" r="1.4" />
+            <circle cx="16.5" cy="16" r="1.4" />
         </svg>
     );
 }

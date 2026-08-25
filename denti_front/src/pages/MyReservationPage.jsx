@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { getMyReservations, cancelReservation } from "../api/reservationAPI";
 import { getReservationHistories } from "../api/reservationHistoryAPI";
 
 const STATUS_LABEL = {
@@ -27,34 +27,24 @@ function MyReservationPage() {
     useEffect(() => {
         if (!loginUser) return;
 
-        const getMyReservations = async () => {
+        const loadMyReservations = async () => {
             try {
-                const response = await axios.get(
-                    `http://localhost:8080/api/reservations/user/${loginUser.userId}`,
-                    {
-                        withCredentials: true,
-                    }
-                );
+                const data = await getMyReservations(loginUser.userId);
 
-                console.log("내 예약 목록:", response.data);
+                console.log("내 예약 목록:", data);
 
-                setReservations(response.data);
+                setReservations(data);
             } catch (error) {
                 console.error("내 예약 목록 조회 실패:", error);
             }
         };
 
-        getMyReservations();
+        loadMyReservations();
     }, [loginUser]);
 
-    const cancelReservation = async (reservationId) => {
+    const handleCancelReservation = async (reservationId) => {
         try {
-            await axios.delete(
-                `http://localhost:8080/api/reservations/${reservationId}`,
-                {
-                    withCredentials: true,
-                }
-            );
+            await cancelReservation(reservationId);
 
             alert("예약이 취소되었습니다.");
 
@@ -152,7 +142,7 @@ function MyReservationPage() {
                                 reservation.status === "CONFIRMED") && (
                                 <button
                                     className="btn btn-danger btn-sm"
-                                    onClick={() => cancelReservation(reservation.reservationId)}
+                                    onClick={() => handleCancelReservation(reservation.reservationId)}
                                 >
                                     예약 취소
                                 </button>

@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { ENDPOINTS, axiosConfig } from './config';
+import axios from "axios";
+import { ENDPOINTS, axiosConfig } from "./config";
 
 const api = axios.create(axiosConfig);
 

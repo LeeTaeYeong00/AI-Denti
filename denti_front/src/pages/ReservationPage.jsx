@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { getAvailableTimes, createReservation } from "../api/reservationAPI";
 
 function ReservationPage() {
     const { loginUser } = useAuth();
@@ -15,31 +15,23 @@ function ReservationPage() {
     useEffect(() => {
         if (!date) return;
 
-        getAvailableTimes();
+        loadAvailableTimes();
     }, [date]);
 
-    const getAvailableTimes = async () => {
+    const loadAvailableTimes = async () => {
         try {
-            const response = await axios.get(
-                `http://localhost:8080/api/available-times/shop/${shopId}`,
-                {
-                    params: {
-                        date: date
-                    }
-                }
-            );
+            const data = await getAvailableTimes(shopId, date);
 
-            console.log("ReservationPage 예약시간 조회:", response.data);
+            console.log("ReservationPage 예약시간 조회:", data);
 
-            setAvailableTimes(response.data);
+            setAvailableTimes(data);
             setSelectedTime(null);
-
         } catch (error) {
             console.error("예약 가능 시간 조회 실패:", error);
         }
     };
 
-    const createReservation = async () => {
+    const handleCreateReservation = async () => {
         if (!loginUser) {
             alert("로그인 후 이용해주세요.");
             navigate("/login");
@@ -52,22 +44,18 @@ function ReservationPage() {
         }
 
         try {
-            const response = await axios.post(
-                "http://localhost:8080/api/reservations",
-                {
-                    userId: loginUser.userId,
-                    shopId: shopId,
-                    availableTimeId: selectedTime
-                }
-            );
+            const data = await createReservation({
+                userId: loginUser.userId,
+                shopId: shopId,
+                availableTimeId: selectedTime,
+            });
 
-            console.log("예약 성공:", response.data);
+            console.log("예약 성공:", data);
 
             alert("예약이 신청되었습니다.");
 
-            getAvailableTimes();
+            loadAvailableTimes();
             setSelectedTime(null);
-
         } catch (error) {
             console.error("예약 신청 실패:", error);
 
@@ -147,7 +135,7 @@ function ReservationPage() {
                     className="btn btn-primary btn-block"
                     style={{ marginTop: 20 }}
                     disabled={!selectedTime || !loginUser}
-                    onClick={createReservation}
+                    onClick={handleCreateReservation}
                 >
                     예약 신청
                 </button>
