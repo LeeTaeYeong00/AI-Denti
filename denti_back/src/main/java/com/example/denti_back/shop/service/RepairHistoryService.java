@@ -52,7 +52,6 @@ public class RepairHistoryService {
         repairHistory.setReservation(reservation);
         repairHistory.setVehicle(reservation.getVehicle());
         repairHistory.setShop(reservation.getShop());
-        repairHistory.setRepairItem(reservation.getRepairItem());
 
         repairHistory.setDescription(description);
         repairHistory.setRepairPrice(repairPrice);

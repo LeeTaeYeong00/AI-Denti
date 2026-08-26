@@ -2,7 +2,6 @@ package com.example.denti_back.reservation.entity;
 
 import com.example.denti_back.member.entity.User;
 import com.example.denti_back.reservation.enums.ReservationStatus;
-import com.example.denti_back.shop.entity.RepairItem;
 import com.example.denti_back.shop.entity.RepairShop;
 import com.example.denti_back.vehicle.entity.Vehicle;
 
@@ -34,10 +33,6 @@ public class Reservation {
     @ManyToOne
     @JoinColumn(name = "available_time_id")
     private AvailableTime availableTime;
-
-    @ManyToOne
-    @JoinColumn(name = "item_id")
-    private RepairItem repairItem;
 
     @Enumerated(EnumType.STRING)
     private ReservationStatus status;

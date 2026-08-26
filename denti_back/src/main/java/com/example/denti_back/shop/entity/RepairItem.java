@@ -14,7 +14,7 @@ public class RepairItem {
     private Long itemId;
 
     @ManyToOne
-    @JoinColumn(name = "shop_id")
+    @JoinColumn(name = "shop_id", nullable = false)
     private RepairShop shop;
 
     private String name;
@@ -22,8 +22,6 @@ public class RepairItem {
     private String description;
 
     private Integer price;
-
-    private Integer estimatedMinutes;
 
     private boolean active;
 }
