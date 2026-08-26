@@ -20,6 +20,7 @@ import AiHistoryPage from "./pages/ai/AiHistoryPage";
 import AiAnalysisDetailPage from "./pages/ai/AiAnalysisDetailPage";
 import MyPage from "./pages/MyPage";
 import MyShopPage from "./pages/MyShopPage";
+import RepairItemPage from "./pages/RepairItemPage";
 import AdminShopApprovalPage from "./pages/AdminShopApprovalPage";
 
 
@@ -126,6 +127,14 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <MyShopPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/repair-items"
+                        element={
+                            <ProtectedRoute>
+                                <RepairItemPage />
                             </ProtectedRoute>
                         }
                     />

@@ -17,7 +17,6 @@ import com.example.denti_back.reservation.repository.AvailableTimeRepository;
 import com.example.denti_back.reservation.repository.ReservationHistoryRepository;
 import com.example.denti_back.reservation.repository.ReservationRepository;
 import com.example.denti_back.shop.entity.RepairHistory;
-import com.example.denti_back.shop.entity.RepairItem;
 import com.example.denti_back.shop.entity.RepairShopHour;
 import com.example.denti_back.shop.repository.RepairHistoryRepository;
 import com.example.denti_back.shop.repository.RepairItemRepository;
@@ -36,7 +35,6 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final AvailableTimeRepository availableTimeRepository;
     private final RepairShopHourRepository repairShopHourRepository;
-    private final RepairItemRepository repairItemRepository;
     private final VehicleRepository vehicleRepository;
     private final ReservationHistoryRepository reservationHistoryRepository;
     private final RepairHistoryRepository repairHistoryRepository;
@@ -276,7 +274,6 @@ public class ReservationService {
         repairHistory.setVehicle(reservation.getVehicle());
         repairHistory.setReservation(reservation);
         repairHistory.setShop(reservation.getShop());
-        repairHistory.setRepairItem(reservation.getRepairItem()); // 지금은 항상 null
 
         repairHistory.setDescription("정비 완료");
         repairHistory.setRepairPrice(0);
