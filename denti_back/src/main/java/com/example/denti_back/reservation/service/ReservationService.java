@@ -93,19 +93,6 @@ public class ReservationService {
             );
         }
 
-        RepairItem repairItem = repairItemRepository
-                .findById(request.getItemId())
-                .orElseThrow(() ->
-                        new IllegalArgumentException("정비 항목을 찾을 수 없습니다."));
-
-        if (!repairItem.getShop().getShopId()
-                .equals(request.getShopId())) {
-
-            throw new IllegalArgumentException(
-                    "정비 항목과 정비소 정보가 일치하지 않습니다."
-            );
-        }
-
         Vehicle vehicle = vehicleRepository
                 .findById(request.getVehicleId())
                 .orElseThrow(() ->
@@ -118,7 +105,6 @@ public class ReservationService {
         }
 
         Reservation reservation = new Reservation();
-        reservation.setRepairItem(repairItem);
         reservation.setVehicle(vehicle);
 
         User user = entityManager.getReference(
@@ -290,16 +276,10 @@ public class ReservationService {
         repairHistory.setVehicle(reservation.getVehicle());
         repairHistory.setReservation(reservation);
         repairHistory.setShop(reservation.getShop());
-        repairHistory.setRepairItem(reservation.getRepairItem());
+        repairHistory.setRepairItem(reservation.getRepairItem()); // 지금은 항상 null
 
-        repairHistory.setDescription(
-                reservation.getRepairItem().getDescription()
-        );
-
-        repairHistory.setRepairPrice(
-                reservation.getRepairItem().getPrice()
-        );
-
+        repairHistory.setDescription("정비 완료");
+        repairHistory.setRepairPrice(0);
         repairHistory.setRepairedAt(LocalDateTime.now());
 
         repairHistoryRepository.save(repairHistory);

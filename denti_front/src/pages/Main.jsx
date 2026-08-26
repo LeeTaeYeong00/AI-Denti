@@ -36,8 +36,7 @@ const FEATURES = [
     { icon: ScanIcon, label: "AI 파손 분석", desc: "사진으로 파손 진단 받기", to: "/ai", tint: "signal", authOnly: true },
     { icon: MapPinIcon, label: "정비소 지도", desc: "내 주변 정비소 찾기", to: "/map", tint: "info" },
     { icon: UserIcon, label: "마이페이지", desc: "예약, 차량, 이력 한눈에", to: "/mypage", tint: "success", authOnly: true },
-    { icon: WrenchIcon, label: "정비소 예약관리", desc: "접수된 예약 처리하기", to: "/shop-reservations", tint: "ink" },
-];
+    { icon: WrenchIcon, label: "내 정비소", desc: "정비소 등록 및 예약 관리", to: "/my-shop", tint: "ink", authOnly: true },];
 
 export default function Main() {
     const { loginUser } = useAuth();

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { analyzeImage } from "../../api/aiAPI";
 
 const DAMAGE_LABEL_KR = {
@@ -9,6 +10,7 @@ const DAMAGE_LABEL_KR = {
 };
 
 export default function AiAnalysisPage() {
+    const navigate = useNavigate();
     const [file, setFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
     const [result, setResult] = useState(null);
@@ -43,6 +45,19 @@ export default function AiAnalysisPage() {
         }
     };
 
+    // 저장 -> 분석 이력으로 이동
+    const handleSave = () => {
+        navigate("/ai/history");
+    };
+
+    // 취소 -> 사진 다시 선택하는 화면으로 초기화
+    const handleCancel = () => {
+        setFile(null);
+        setPreviewUrl(null);
+        setResult(null);
+        setError(null);
+    };
+
     return (
         <div className="page" style={{ maxWidth: 640 }}>
             <div className="page-header">
@@ -51,31 +66,33 @@ export default function AiAnalysisPage() {
                 <p style={{ marginTop: 6 }}>차량 사진을 올리면 파손 부위와 예상 수리비를 분석해드려요.</p>
             </div>
 
-            <div className="card" style={{ textAlign: "center" }}>
-                <input type="file" accept="image/*" onChange={handleFileChange} style={{ marginBottom: 20 }} />
+            {!result && (
+                <div className="card" style={{ textAlign: "center" }}>
+                    <input type="file" accept="image/*" onChange={handleFileChange} style={{ marginBottom: 20 }} />
 
-                {previewUrl && (
-                    <div className="scan-frame" style={{ marginBottom: 20 }}>
-                        <span className="scan-frame__corner scan-frame__corner--tl" />
-                        <span className="scan-frame__corner scan-frame__corner--tr" />
-                        <span className="scan-frame__corner scan-frame__corner--bl" />
-                        <span className="scan-frame__corner scan-frame__corner--br" />
-                        <img
-                            src={previewUrl}
-                            alt="미리보기"
-                            style={{ maxWidth: "100%", maxHeight: 300, borderRadius: 8, display: "block" }}
-                        />
+                    {previewUrl && (
+                        <div className="scan-frame" style={{ marginBottom: 20 }}>
+                            <span className="scan-frame__corner scan-frame__corner--tl" />
+                            <span className="scan-frame__corner scan-frame__corner--tr" />
+                            <span className="scan-frame__corner scan-frame__corner--bl" />
+                            <span className="scan-frame__corner scan-frame__corner--br" />
+                            <img
+                                src={previewUrl}
+                                alt="미리보기"
+                                style={{ maxWidth: "100%", maxHeight: 300, borderRadius: 8, display: "block" }}
+                            />
+                        </div>
+                    )}
+
+                    <div>
+                        <button className="btn btn-primary" onClick={handleSubmit} disabled={loading || !file}>
+                            {loading ? "분석 중..." : "분석 요청"}
+                        </button>
                     </div>
-                )}
 
-                <div>
-                    <button className="btn btn-primary" onClick={handleSubmit} disabled={loading || !file}>
-                        {loading ? "분석 중..." : "분석 요청"}
-                    </button>
+                    {error && <p className="form-error">{error}</p>}
                 </div>
-
-                {error && <p className="form-error">{error}</p>}
-            </div>
+            )}
 
             {result && (
                 <div className="card" style={{ textAlign: "left", marginTop: 16 }}>
@@ -105,6 +122,15 @@ export default function AiAnalysisPage() {
                     <p style={{ marginTop: 16, fontSize: 20, fontWeight: 700, textAlign: "right", fontFamily: "var(--font-mono)" }}>
                         총 예상 수리비: {result.totalCost.toLocaleString()}원
                     </p>
+
+                    <div style={{ display: "flex", gap: 8, marginTop: 20, justifyContent: "flex-end" }}>
+                        <button className="btn btn-outline" onClick={handleCancel}>
+                            취소
+                        </button>
+                        <button className="btn btn-primary" onClick={handleSave}>
+                            저장 / 예약하러가기
+                        </button>
+                    </div>
                 </div>
             )}
         </div>

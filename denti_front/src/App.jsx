@@ -19,7 +19,8 @@ import AiAnalysisPage from "./pages/ai/AiAnalysisPage";
 import AiHistoryPage from "./pages/ai/AiHistoryPage";
 import AiAnalysisDetailPage from "./pages/ai/AiAnalysisDetailPage";
 import MyPage from "./pages/MyPage";
-
+import MyShopPage from "./pages/MyShopPage";
+import AdminShopApprovalPage from "./pages/AdminShopApprovalPage";
 
 
 function App() {
@@ -117,6 +118,22 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <ReviewWritePage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/my-shop"
+                        element={
+                            <ProtectedRoute>
+                                <MyShopPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/repair-shops"
+                        element={
+                            <ProtectedRoute>
+                                <AdminShopApprovalPage />
                             </ProtectedRoute>
                         }
                     />
