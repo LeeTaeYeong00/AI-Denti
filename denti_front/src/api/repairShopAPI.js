@@ -20,3 +20,8 @@ export const getMyRepairShop = async () => {
     const response = await api.get(ENDPOINTS.REPAIR_SHOP.MY);
     return response.data;
 };
+
+export const registerRepairShop = async (data) => {
+    const response = await api.post(ENDPOINTS.REPAIR_SHOP.BASE, data);
+    return response.data;
+};
