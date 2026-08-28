@@ -1,6 +1,24 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { getMyRepairShop } from "../api/repairShopAPI";
+import { getShopReservations, updateReservationStatus } from "../api/reservationAPI";
+
+const STATUS_LABEL = {
+    PENDING: "대기중",
+    CONFIRMED: "승인됨",
+    IN_PROGRESS: "정비중",
+    COMPLETED: "완료",
+    REJECTED: "거절됨",
+    CANCELLED: "취소됨",
+};
+
+function StatusBadge({ status }) {
+    return (
+        <span className={`badge badge-${status.toLowerCase()}`}>
+            {STATUS_LABEL[status] ?? status}
+        </span>
+    );
+}
 
 function ShopReservationPage() {
     const { loginUser } = useAuth();
@@ -10,24 +28,19 @@ function ShopReservationPage() {
     useEffect(() => {
         if (!loginUser) return;
 
-        const getMyRepairShop = async () => {
+        const loadMyRepairShop = async () => {
             try {
-                const response = await axios.get(
-                    "http://localhost:8080/api/repair-shops/my",
-                    {
-                        withCredentials: true,
-                    }
-                );
+                const data = await getMyRepairShop();
 
-                console.log("내 정비소:", response.data);
+                console.log("내 정비소:", data);
 
-                setShopId(response.data.shopId);
+                setShopId(data.shopId);
             } catch (error) {
                 console.error("내 정비소 조회 실패:", error);
             }
         };
 
-        getMyRepairShop();
+        loadMyRepairShop();
     }, [loginUser]);
 
     const [reservations, setReservations] = useState([]);
@@ -35,45 +48,31 @@ function ShopReservationPage() {
     useEffect(() => {
         if (!shopId) return;
 
-        const getReservations = async () => {
+        const loadReservations = async () => {
             try {
-                const response = await axios.get(
-                    `http://localhost:8080/api/reservations/shop/${shopId}`,
-                    {
-                        withCredentials: true,
-                    }
-                );
+                const data = await getShopReservations(shopId);
 
-                console.log("정비소 예약 목록:", response.data);
+                console.log("정비소 예약 목록:", data);
 
-                setReservations(response.data);
+                setReservations(data);
             } catch (error) {
                 console.error("정비소 예약 목록 조회 실패:", error);
             }
         };
 
-        getReservations();
+        loadReservations();
     }, [shopId]);
 
     const updateStatus = async (reservationId, status) => {
         try {
-            const response = await axios.put(
-                `http://localhost:8080/api/reservations/${reservationId}/status`,
-                null,
-                {
-                    params: {
-                        status: status,
-                    },
-                    withCredentials: true,
-                }
-            );
+            const data = await updateReservationStatus(reservationId, status);
 
-            console.log("예약 상태 변경:", response.data);
+            console.log("예약 상태 변경:", data);
 
             setReservations((prev) =>
                 prev.map((reservation) =>
                     reservation.reservationId === reservationId
-                        ? response.data
+                        ? data
                         : reservation
                 )
             );
@@ -99,87 +98,90 @@ function ShopReservationPage() {
     };
 
     return (
-        <div>
-            <h1>정비소 예약 관리</h1>
+        <div className="page">
+            <div className="page-header">
+                <span className="eyebrow">SHOP DASHBOARD</span>
+                <h1 style={{ fontSize: 28 }}>정비소 예약 관리</h1>
+            </div>
 
             {reservations.length === 0 ? (
-                <p>예약 내역이 없습니다.</p>
+                <div className="empty-state">예약 내역이 없습니다.</div>
             ) : (
                 reservations.map((reservation) => (
-                    <div key={reservation.reservationId}>
-                        <p>
-                            예약 번호: {reservation.reservationId}
-                        </p>
-
-                        <p>
-                            날짜: {reservation.availableDate}
-                        </p>
-
-                        <p>
-                            시간: {reservation.availableTime}
-                        </p>
-
-                        <p>
-                            사용자 번호: {reservation.userId}
-                        </p>
-
-                        <p>
-                            상태: {reservation.status}
-                        </p>
-
-                        {reservation.status === "PENDING" && (
+                    <div className="card" key={reservation.reservationId}>
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "flex-start",
+                                gap: 12,
+                                flexWrap: "wrap",
+                            }}
+                        >
                             <div>
-                                <button
-                                    onClick={() =>
-                                        updateStatus(
-                                            reservation.reservationId,
-                                            "CONFIRMED"
-                                        )
-                                    }
+                                <p
+                                    style={{
+                                        fontFamily: "var(--font-mono)",
+                                        fontSize: 12,
+                                        color: "var(--color-ink-faint)",
+                                        marginBottom: 6,
+                                    }}
                                 >
-                                    승인
-                                </button>
-
-                                <button
-                                    onClick={() =>
-                                        updateStatus(
-                                            reservation.reservationId,
-                                            "REJECTED"
-                                        )
-                                    }
-                                >
-                                    거절
-                                </button>
+                                    예약 #{reservation.reservationId} · 사용자 #{reservation.userId}
+                                </p>
+                                <h3>
+                                    {reservation.availableDate} · {reservation.availableTime}
+                                </h3>
                             </div>
-                        )}
 
-                        {reservation.status === "CONFIRMED" && (
-                            <button
-                                onClick={() =>
-                                    updateStatus(
-                                        reservation.reservationId,
-                                        "IN_PROGRESS"
-                                    )
-                                }
-                            >
-                                정비 시작
-                            </button>
-                        )}
+                            <StatusBadge status={reservation.status} />
+                        </div>
 
-                        {reservation.status === "IN_PROGRESS" && (
-                            <button
-                                onClick={() =>
-                                    updateStatus(
-                                        reservation.reservationId,
-                                        "COMPLETED"
-                                    )
-                                }
-                            >
-                                정비 완료
-                            </button>
-                        )}
+                        <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
+                            {reservation.status === "PENDING" && (
+                                <>
+                                    <button
+                                        className="btn btn-primary btn-sm"
+                                        onClick={() =>
+                                            updateStatus(reservation.reservationId, "CONFIRMED")
+                                        }
+                                    >
+                                        승인
+                                    </button>
 
-                        <hr />
+                                    <button
+                                        className="btn btn-danger btn-sm"
+                                        onClick={() =>
+                                            updateStatus(reservation.reservationId, "REJECTED")
+                                        }
+                                    >
+                                        거절
+                                    </button>
+                                </>
+                            )}
+
+                            {reservation.status === "CONFIRMED" && (
+                                <button
+                                    className="btn btn-secondary btn-sm"
+                                    onClick={() =>
+                                        updateStatus(reservation.reservationId, "IN_PROGRESS")
+                                    }
+                                >
+                                    정비 시작
+                                </button>
+                            )}
+
+                            {reservation.status === "IN_PROGRESS" && (
+                                <button
+                                    className="btn btn-primary btn-sm"
+                                    onClick={() =>
+                                        updateStatus(reservation.reservationId, "COMPLETED")
+                                    }
+                                >
+                                    정비 완료
+                                </button>
+                            )}
+                        </div>
                     </div>
                 ))
             )}

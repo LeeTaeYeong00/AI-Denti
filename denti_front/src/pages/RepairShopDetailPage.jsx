@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import ShopReviewSection from "../components/review/ShopReviewSection";
 import MyReviewSection from "../components/review/MyReviewSection";
 import { getRepairItemsByShop } from "../api/repairItemAPI";
 import { getRepairShopHours } from "../api/repairShopHourAPI";
-import FavoriteButton from "../components/favorite/FavoriteButton";
 
 function RepairShopDetailPage() {
     const { shopId } = useParams();
@@ -26,12 +24,10 @@ function RepairShopDetailPage() {
     useEffect(() => {
         const getShop = async () => {
             try {
-                const response = await axios.get(
-                    `/api/repair-shop-addresses/shop/${shopId}`
-                );
+                const data = await getRepairShopByShopId(shopId);
 
-                console.log("정비소 상세:", response.data);
-                setShop(response.data);
+                console.log("정비소 상세:", data);
+                setShop(data);
             } catch (error) {
                 console.error("정비소 상세 조회 실패:", error);
             }
@@ -114,27 +110,20 @@ function RepairShopDetailPage() {
         if (!shop) return;
         if (!selectedDate) return;
 
-        const getAvailableTimes = async () => {
+        const loadAvailableTimes = async () => {
             try {
-                const response = await axios.get(
-                    `/api/available-times/shop/${shop.shopId}`,
-                    {
-                        params: {
-                            date: selectedDate,
-                        },
-                    }
-                );
+                const data = await getAvailableTimes(shop.shopId, selectedDate);
 
-                console.log("예약 가능 시간:", response.data);
+                console.log("예약 가능 시간:", data);
 
-                setAvailableTimes(response.data);
+                setAvailableTimes(data);
             } catch (error) {
                 console.error("예약 가능 시간 조회 실패:", error);
                 setAvailableTimes([]);
             }
         };
 
-        getAvailableTimes();
+        loadAvailableTimes();
     }, [shop, selectedDate]);
 
     // 4. 정비소 + 카카오 SDK가 모두 준비되면 지도 생성
@@ -177,14 +166,16 @@ function RepairShopDetailPage() {
     console.log("현재 shopId:", shopId);
 
     if (!shop) {
-        return <div>정비소 정보를 불러오는 중...</div>;
+        return (
+            <div className="page">
+                <div className="empty-state">정비소 정보를 불러오는 중...</div>
+            </div>
+        );
     }
 
     return (
         <div>
             <h1>{shop.shopName || "정비소"}</h1>
-            
-            <FavoriteButton shopId={shop.shopId} />
 
             <div>
                 <h2>정비소 정보</h2>
@@ -194,153 +185,125 @@ function RepairShopDetailPage() {
                 <p>경도: {shop.longitude}</p>
             </div>
 
-            <div style={{ marginTop: "20px" }}>
-                <h2>영업시간</h2>
+            <div className="card">
+                <h2 style={{ marginBottom: 12 }}>영업시간</h2>
 
                 {shopHours.length === 0 ? (
-                    <p>등록된 영업시간이 없습니다.</p>
+                    <p style={{ fontSize: 14 }}>등록된 영업시간이 없습니다.</p>
                 ) : (
-                    shopHours.map((hour) => (
-                        <div key={hour.hourId}>
-                            <strong>{hour.dayOfWeek}</strong>
-                            {" : "}
-                            {hour.openTime}
-                            {" ~ "}
-                            {hour.closeTime}
-                        </div>
-                    ))
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                        {shopHours.map((hour) => (
+                            <div key={hour.hourId} style={{ display: "flex", gap: 12, fontSize: 14 }}>
+                                <strong style={{ width: 48 }}>{hour.dayOfWeek}</strong>
+                                <span style={{ fontFamily: "var(--font-mono)", color: "var(--color-ink-soft)" }}>
+                                    {hour.openTime} ~ {hour.closeTime}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
                 )}
             </div>
 
-            <div
-                id="detail-map"
-                style={{
-                    width: "100%",
-                    height: "400px",
-                    marginTop: "20px",
-                }}
-            ></div>
+            <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+                <div id="detail-map" style={{ width: "100%", height: "360px" }} />
+            </div>
 
-            <div style={{ marginTop: "30px" }}>
-                <h2>정비 항목</h2>
+            <div className="card">
+                <h2 style={{ marginBottom: 16 }}>정비 항목</h2>
 
                 {repairItems.length === 0 ? (
-                    <p>등록된 정비 항목이 없습니다.</p>
+                    <p style={{ fontSize: 14 }}>등록된 정비 항목이 없습니다.</p>
                 ) : (
-                    repairItems.map((item) => (
-                        <button
-                            key={item.itemId}
-                            onClick={() => {
-                                console.log("선택한 정비 항목:", item);
-                                setSelectedItem(item);
-                            }}
-                            style={{
-                                display: "block",
-                                width: "100%",
-                                maxWidth: "500px",
-                                marginBottom: "10px",
-                                padding: "12px",
-                                textAlign: "left",
-                                cursor: "pointer",
-                                backgroundColor:
-                                    selectedItem?.itemId === item.itemId
-                                        ? "#333"
-                                        : "#fff",
-                                color:
-                                    selectedItem?.itemId === item.itemId
-                                        ? "#fff"
-                                        : "#000",
-                                border: "1px solid #ccc",
-                                borderRadius: "5px",
-                            }}
-                        >
-                            <strong>{item.name}</strong>
-
-                            <br />
-
-                            <span>
-                                {item.description}
-                            </span>
-
-                            <br />
-
-                            <span>
-                                가격: {item.price?.toLocaleString()}원
-                            </span>
-
-                            <br />
-
-                            <span>
-                                예상 소요시간: {item.estimatedMinutes}분
-                            </span>
-                        </button>
-                    ))
+                    <div
+                        style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+                            gap: 12,
+                        }}
+                    >
+                        {repairItems.map((item) => (
+                            <button
+                                key={item.itemId}
+                                type="button"
+                                className={`select-card ${
+                                    selectedItem?.itemId === item.itemId ? "select-card--selected" : ""
+                                }`}
+                                onClick={() => {
+                                    console.log("선택한 정비 항목:", item);
+                                    setSelectedItem(item);
+                                }}
+                            >
+                                <p className="select-card__title">{item.name}</p>
+                                <p style={{ fontSize: 13, color: "var(--color-ink-soft)" }}>
+                                    {item.description}
+                                </p>
+                                <div className="select-card__meta">
+                                    <span style={{ fontFamily: "var(--font-mono)" }}>
+                                        {item.price?.toLocaleString()}원
+                                    </span>
+                                    <span>약 {item.estimatedMinutes}분</span>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
                 )}
 
                 {selectedItem && (
-                    <p>
-                        선택한 정비 항목:{" "}
-                        <strong>{selectedItem.name}</strong>
+                    <p style={{ marginTop: 16, fontSize: 14 }}>
+                        선택한 정비 항목: <strong style={{ color: "var(--color-ink)" }}>{selectedItem.name}</strong>
                     </p>
                 )}
             </div>
 
-            <div style={{ marginTop: "30px" }}>
-                <h2>예약 가능 시간</h2>
+            <div className="card">
+                <h2 style={{ marginBottom: 16 }}>예약 가능 시간</h2>
 
                 <input
                     type="date"
                     id="reservation-date"
+                    className="input"
+                    style={{ maxWidth: 220, marginBottom: 16 }}
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
                 />
 
-                <div style={{ marginTop: "15px" }}>
-                    {availableTimes.length === 0 ? (
-                        <p>예약 가능한 시간이 없습니다.</p>
-                    ) : (
-                        availableTimes.map((time) => (
+                {availableTimes.length === 0 ? (
+                    <p style={{ fontSize: 14 }}>예약 가능한 시간이 없습니다.</p>
+                ) : (
+                    <div className="chip-grid">
+                        {availableTimes.map((time) => (
                             <button
                                 key={time.availableTimeId}
+                                type="button"
+                                className={`chip ${
+                                    selectedTime?.availableTimeId === time.availableTimeId
+                                        ? "chip--selected"
+                                        : ""
+                                }`}
                                 onClick={() => {
                                     console.log("선택한 예약 시간:", time);
                                     setSelectedTime(time);
                                 }}
-                                style={{
-                                    marginRight: "10px",
-                                    marginBottom: "10px",
-                                    padding: "10px 15px",
-                                    cursor: "pointer",
-                                    backgroundColor:
-                                        selectedTime?.availableTimeId === time.availableTimeId
-                                            ? "#333"
-                                            : "#fff",
-                                    color:
-                                        selectedTime?.availableTimeId === time.availableTimeId
-                                            ? "#fff"
-                                            : "#000",
-                                }}
                             >
                                 {time.availableTime}
                             </button>
-                        ))
-                    )}
-                </div>
+                        ))}
+                    </div>
+                )}
 
                 {selectedTime && (
-                    <div style={{ marginTop: "20px" }}>
-                        <p>
-                            선택한 시간:{" "}
-                            <strong>{selectedTime.availableTime}</strong>
+                    <div style={{ marginTop: 20 }}>
+                        <p style={{ fontSize: 14 }}>
+                            선택한 시간: <strong style={{ color: "var(--color-ink)" }}>{selectedTime.availableTime}</strong>
                         </p>
 
                         {!loginUser && (
-                            <p style={{ color: "#c0392b", marginBottom: "10px" }}>
-                                로그인 후 예약을 신청할 수 있습니다.
-                            </p>
+                            <p className="form-error">로그인 후 예약을 신청할 수 있습니다.</p>
                         )}
 
                         <button
+                            className="btn btn-primary"
+                            style={{ marginTop: 8 }}
                             onClick={async () => {
                                 if (!loginUser) {
                                     alert("로그인 후 이용해주세요.");
@@ -354,23 +317,16 @@ function RepairShopDetailPage() {
                                 }
 
                                 try {
-                                    const response = await axios.post(
-                                        "http://localhost:8080/api/reservations",
-                                        {
-                                            userId: loginUser.userId,
-                                            shopId: shop.shopId,
-                                            itemId: selectedItem.itemId,
-                                            availableTimeId: selectedTime.availableTimeId,
-                                        },
-                                        {
-                                            withCredentials: true,
-                                        }
-                                    );
+                                    const data = await createReservation({
+                                        userId: loginUser.userId,
+                                        shopId: shop.shopId,
+                                        itemId: selectedItem.itemId,
+                                        availableTimeId: selectedTime.availableTimeId,
+                                    });
 
-                                    console.log("예약 성공:", response.data);
+                                    console.log("예약 성공:", data);
 
                                     alert("예약이 신청되었습니다.");
-
                                 } catch (error) {
                                     console.error("예약 신청 실패:", error);
 
@@ -381,25 +337,23 @@ function RepairShopDetailPage() {
                                     alert("예약 신청에 실패했습니다.");
                                 }
                             }}
-                            style={{
-                                padding: "10px 20px",
-                                cursor: "pointer",
-                            }}
                         >
                             예약하기
                         </button>
                     </div>
                 )}
             </div>
-            <div style={{ marginTop: "40px" }}>
+
+            <div className="card">
                 <ShopReviewSection
                     shopId={shop.shopId}
                     currentUserId={loginUser?.userId}
                 />
             </div>
-            <div style={{ marginTop: "40px" }}>
-                <h2>내 리뷰 테스트 영역</h2>
-                
+
+            <div className="card">
+                <h2 style={{ marginBottom: 16 }}>내 리뷰</h2>
+
                 <MyReviewSection
                     currentUserId={loginUser?.userId}
                 />

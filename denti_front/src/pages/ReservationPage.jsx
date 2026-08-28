@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { getAvailableTimes, createReservation } from "../api/reservationAPI";
 
 function ReservationPage() {
     const { loginUser } = useAuth();
@@ -15,31 +15,23 @@ function ReservationPage() {
     useEffect(() => {
         if (!date) return;
 
-        getAvailableTimes();
+        loadAvailableTimes();
     }, [date]);
 
-    const getAvailableTimes = async () => {
+    const loadAvailableTimes = async () => {
         try {
-            const response = await axios.get(
-                `http://localhost:8080/api/available-times/shop/${shopId}`,
-                {
-                    params: {
-                        date: date
-                    }
-                }
-            );
+            const data = await getAvailableTimes(shopId, date);
 
-            console.log("ReservationPage 예약시간 조회:", response.data);
+            console.log("ReservationPage 예약시간 조회:", data);
 
-            setAvailableTimes(response.data);
+            setAvailableTimes(data);
             setSelectedTime(null);
-
         } catch (error) {
             console.error("예약 가능 시간 조회 실패:", error);
         }
     };
 
-    const createReservation = async () => {
+    const handleCreateReservation = async () => {
         if (!loginUser) {
             alert("로그인 후 이용해주세요.");
             navigate("/login");
@@ -52,22 +44,18 @@ function ReservationPage() {
         }
 
         try {
-            const response = await axios.post(
-                "http://localhost:8080/api/reservations",
-                {
-                    userId: loginUser.userId,
-                    shopId: shopId,
-                    availableTimeId: selectedTime
-                }
-            );
+            const data = await createReservation({
+                userId: loginUser.userId,
+                shopId: shopId,
+                availableTimeId: selectedTime,
+            });
 
-            console.log("예약 성공:", response.data);
+            console.log("예약 성공:", data);
 
             alert("예약이 신청되었습니다.");
 
-            getAvailableTimes();
+            loadAvailableTimes();
             setSelectedTime(null);
-
         } catch (error) {
             console.error("예약 신청 실패:", error);
 
@@ -80,68 +68,78 @@ function ReservationPage() {
     };
 
     return (
-        <div>
-            <h1>예약 신청</h1>
-
-            <div>
-                <h3>정비소</h3>
-                <p>테스트 정비소</p>
+        <div className="page" style={{ maxWidth: 560 }}>
+            <div className="page-header">
+                <span className="eyebrow">RESERVATION</span>
+                <h1 style={{ fontSize: 28 }}>예약 신청</h1>
             </div>
 
-            <div>
-                <h3>방문 날짜</h3>
+            <div className="card">
+                <h3 style={{ marginBottom: 4 }}>정비소</h3>
+                <p style={{ marginBottom: 20 }}>테스트 정비소</p>
 
-                <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                />
-            </div>
+                <div className="field">
+                    <label className="field-label" htmlFor="reservation-date">
+                        방문 날짜
+                    </label>
+                    <input
+                        id="reservation-date"
+                        type="date"
+                        className="input"
+                        style={{ maxWidth: 220 }}
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                    />
+                </div>
 
-            <div>
-                <h3>예약 가능 시간</h3>
+                <div className="field">
+                    <label className="field-label">예약 가능 시간</label>
 
-                {availableTimes.length === 0 ? (
-                    <p>예약 가능한 시간이 없습니다.</p>
-                ) : (
-                    availableTimes.map((time) => (
-                        <button
-                            key={time.availableTimeId}
-                            disabled={time.reserved}
-                            onClick={() =>
-                                setSelectedTime(time.availableTimeId)
-                            }
-                        >
-                            {time.availableTime}
-                        </button>
-                    ))
-                )}
-            </div>
+                    {availableTimes.length === 0 ? (
+                        <p style={{ fontSize: 14 }}>예약 가능한 시간이 없습니다.</p>
+                    ) : (
+                        <div className="chip-grid">
+                            {availableTimes.map((time) => (
+                                <button
+                                    key={time.availableTimeId}
+                                    type="button"
+                                    className={`chip ${selectedTime === time.availableTimeId ? "chip--selected" : ""}`}
+                                    disabled={time.reserved}
+                                    onClick={() => setSelectedTime(time.availableTimeId)}
+                                >
+                                    {time.availableTime}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
-            <div>
-                <p>
+                <p style={{ fontSize: 14, marginTop: 4 }}>
                     선택한 예약 시간:{" "}
-                    {selectedTime
-                        ? availableTimes.find(
-                              (time) =>
-                                  time.availableTimeId === selectedTime
-                          )?.availableTime
-                        : "없음"}
+                    <strong style={{ color: "var(--color-ink)" }}>
+                        {selectedTime
+                            ? availableTimes.find(
+                                  (time) => time.availableTimeId === selectedTime
+                              )?.availableTime
+                            : "없음"}
+                    </strong>
                 </p>
+
+                {!loginUser && (
+                    <p className="form-error" style={{ marginTop: 12 }}>
+                        로그인 후 예약을 신청할 수 있습니다.
+                    </p>
+                )}
+
+                <button
+                    className="btn btn-primary btn-block"
+                    style={{ marginTop: 20 }}
+                    disabled={!selectedTime || !loginUser}
+                    onClick={handleCreateReservation}
+                >
+                    예약 신청
+                </button>
             </div>
-
-            {!loginUser && (
-                <p style={{ color: "#c0392b", marginBottom: "10px" }}>
-                    로그인 후 예약을 신청할 수 있습니다.
-                </p>
-            )}
-
-            <button
-                disabled={!selectedTime || !loginUser}
-                onClick={createReservation}
-            >
-                예약 신청
-            </button>
         </div>
     );
 }

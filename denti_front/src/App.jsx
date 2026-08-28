@@ -1,22 +1,25 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import NavBar from './components/NavBar';
-import ProtectedRoute from './components/ProtectedRoute';
-import ReviewWritePage from './pages/review/ReviewWritePage';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import NavBar from "./components/NavBar";
+import ProtectedRoute from "./components/ProtectedRoute";
+import ReviewWritePage from "./pages/review/ReviewWritePage";
 
 // Pages
-import Main from './pages/Main';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import MapPage from './pages/MapPage';
-import RepairShopDetailPage from './pages/RepairShopDetailPage';
-import ReservationPage from './pages/ReservationPage';
-import MyReservationPage from './pages/MyReservationPage';
-import RepairHistoryPage from './pages/RepairHistoryPage';
-import ShopReservationPage from './pages/ShopReservationPage';
-import AiAnalysisPage from './pages/ai/AiAnalysisPage';
-import AiHistoryPage from './pages/ai/AiHistoryPage';
-import AiAnalysisDetailPage from './pages/ai/AiAnalysisDetailPage';
+import Main from "./pages/Main";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import MapPage from "./pages/MapPage";
+import RepairShopDetailPage from "./pages/RepairShopDetailPage";
+import ReservationPage from "./pages/ReservationPage";
+import MyReservationPage from "./pages/MyReservationPage";
+import RepairHistoryPage from "./pages/RepairHistoryPage";
+import VehiclePage from "./pages/VehiclePage";
+import ShopReservationPage from "./pages/ShopReservationPage";
+import AiAnalysisPage from "./pages/ai/AiAnalysisPage";
+import AiHistoryPage from "./pages/ai/AiHistoryPage";
+import AiAnalysisDetailPage from "./pages/ai/AiAnalysisDetailPage";
+import MyPage from "./pages/MyPage";
+
 
 
 function App() {
@@ -27,16 +30,16 @@ function App() {
                 <Routes>
                     {/* 메인 / 인증 페이지 */}
                     <Route path="/" element={<Main />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/signup" element={<Signup />} />
                     <Route
-                        path="/ai"
+                        path="/mypage"
                         element={
                             <ProtectedRoute>
-                                <AiAnalysisPage />
+                                <MyPage />
                             </ProtectedRoute>
                         }
                     />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
                     <Route
                         path="/ai/history"
                         element={
@@ -72,6 +75,15 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <MyReservationPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/vehicles"
+                        element={
+                            <ProtectedRoute>
+                                <VehiclePage />
                             </ProtectedRoute>
                         }
                     />

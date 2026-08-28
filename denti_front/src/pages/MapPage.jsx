@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import { getRepairShopAddresses } from "../api/repairShopAPI";
 
 function MapPage() {
     const mapContainer = useRef(null);
@@ -11,13 +11,11 @@ function MapPage() {
     useEffect(() => {
         const getAddresses = async () => {
             try {
-                const response = await axios.get(
-                    "http://localhost:8080/api/repair-shop-addresses"
-                );
+                const data = await getRepairShopAddresses();
 
-                console.log("주소 데이터:", response.data);
+                console.log("주소 데이터:", data);
 
-                setAddresses(response.data);
+                setAddresses(data);
             } catch (error) {
                 console.error("주소 조회 실패:", error);
             }
@@ -54,12 +52,8 @@ function MapPage() {
         return () => clearInterval(interval);
     }, []);
 
-    // 카카오 지도 생성 (주소 + SDK 로딩이 모두 끝나면 실행)
+    // 카카오 지도 생성 (SDK 로딩만 끝나면 실행 - 주소가 없어도 기본 위치로 지도를 띄운다)
     useEffect(() => {
-        if (addresses.length === 0) {
-            return;
-        }
-
         if (!kakaoLoaded) {
             console.log("카카오 지도 SDK가 아직 로드되지 않음, 대기 중...");
             return;
@@ -68,7 +62,9 @@ function MapPage() {
         window.kakao.maps.load(() => {
             console.log("카카오 지도 API 로드 성공");
 
-            const firstAddress = addresses[0];
+            // 등록된 주소가 있으면 첫 번째 주소를, 없으면 서울시청을 기본 중심으로 사용한다.
+            const DEFAULT_CENTER = { latitude: 37.5665, longitude: 126.978 };
+            const firstAddress = addresses[0] ?? DEFAULT_CENTER;
 
             const center = new window.kakao.maps.LatLng(
                 firstAddress.latitude,
@@ -83,7 +79,7 @@ function MapPage() {
                 }
             );
 
-            console.log("지도 생성 성공");
+            console.log("지도 생성 성공", `(등록된 정비소 ${addresses.length}곳)`);
 
             addresses.forEach((address) => {
                 const position = new window.kakao.maps.LatLng(
@@ -102,6 +98,7 @@ function MapPage() {
                             padding: 12px;
                             font-size: 14px;
                             min-width: 180px;
+                            font-family: Inter, system-ui, sans-serif;
                         ">
                             <strong>${address.shopName}</strong>
 
@@ -119,9 +116,10 @@ function MapPage() {
                                     margin-top: 10px;
                                     padding: 6px 10px;
                                     border: none;
-                                    border-radius: 4px;
-                                    background: #333;
+                                    border-radius: 6px;
+                                    background: #14171c;
                                     color: white;
+                                    font-size: 13px;
                                     cursor: pointer;
                                 "
                             >
@@ -158,14 +156,20 @@ function MapPage() {
     }, [addresses, kakaoLoaded]);
 
     return (
-        <div>
-            <h1>정비소 지도</h1>
+        <div className="page page--wide">
+            <div className="page-header">
+                <span className="eyebrow">FIND A SHOP</span>
+                <h1 style={{ fontSize: 28 }}>정비소 지도</h1>
+            </div>
 
             <div
                 ref={mapContainer}
+                className="card"
                 style={{
-                    width: "800px",
-                    height: "500px"
+                    width: "100%",
+                    height: "560px",
+                    padding: 0,
+                    overflow: "hidden",
                 }}
             />
         </div>
