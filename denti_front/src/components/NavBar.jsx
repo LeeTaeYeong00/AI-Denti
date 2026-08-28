@@ -50,6 +50,7 @@ export default function NavBar() {
                             <Link to="/my-reservations" className="nav-main__link">내 예약</Link>
                             <Link to="/repair-history" className="nav-main__link">정비 이력</Link>
                             <Link to="/ai" className="nav-main__link">AI 분석</Link>
+                            <Link to="/my-shop" className="nav-main__link">내 정비소</Link>
                         </>
                     )}
                 </div>

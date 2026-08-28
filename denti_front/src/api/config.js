@@ -37,6 +37,7 @@ export const ENDPOINTS = {
 
     REPAIR_ITEM: {
         BY_SHOP: (shopId) => `/api/repair-items/shop/${shopId}`,
+        BY_ID: (itemId) => `/api/repair-items/${itemId}`,
     },
 
     REPAIR_SHOP_HOUR: {
@@ -44,6 +45,7 @@ export const ENDPOINTS = {
     },
 
     REPAIR_SHOP: {
+        BASE: "/api/repair-shops",
         ADDRESSES: "/api/repair-shop-addresses",
         ADDRESS_BY_SHOP: (shopId) => `/api/repair-shop-addresses/shop/${shopId}`,
         MY: "/api/repair-shops/my",

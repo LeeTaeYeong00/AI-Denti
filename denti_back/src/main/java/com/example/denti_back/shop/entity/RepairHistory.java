@@ -32,7 +32,7 @@ public class RepairHistory {
     private Reservation reservation;
 
     @ManyToOne
-    @JoinColumn(name = "shop_id", nullable = false)
+    @JoinColumn(name = "shop_id")
     private RepairShop shop;
 
     @ManyToOne

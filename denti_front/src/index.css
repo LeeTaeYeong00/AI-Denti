@@ -112,6 +112,16 @@ hr {
   outline-offset: 2px;
 }
 
+.chip--disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    text-decoration: line-through;
+    background: var(--color-surface);
+}
+.chip--disabled:hover {
+    border-color: var(--color-line);
+}
+
 @media (max-width: 640px) {
   :root {
     font-size: 15px;

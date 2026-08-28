@@ -17,7 +17,6 @@ import com.example.denti_back.reservation.repository.AvailableTimeRepository;
 import com.example.denti_back.reservation.repository.ReservationHistoryRepository;
 import com.example.denti_back.reservation.repository.ReservationRepository;
 import com.example.denti_back.shop.entity.RepairHistory;
-import com.example.denti_back.shop.entity.RepairItem;
 import com.example.denti_back.shop.entity.RepairShopHour;
 import com.example.denti_back.shop.repository.RepairHistoryRepository;
 import com.example.denti_back.shop.repository.RepairItemRepository;
@@ -36,7 +35,6 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final AvailableTimeRepository availableTimeRepository;
     private final RepairShopHourRepository repairShopHourRepository;
-    private final RepairItemRepository repairItemRepository;
     private final VehicleRepository vehicleRepository;
     private final ReservationHistoryRepository reservationHistoryRepository;
     private final RepairHistoryRepository repairHistoryRepository;
@@ -93,19 +91,6 @@ public class ReservationService {
             );
         }
 
-        RepairItem repairItem = repairItemRepository
-                .findById(request.getItemId())
-                .orElseThrow(() ->
-                        new IllegalArgumentException("정비 항목을 찾을 수 없습니다."));
-
-        if (!repairItem.getShop().getShopId()
-                .equals(request.getShopId())) {
-
-            throw new IllegalArgumentException(
-                    "정비 항목과 정비소 정보가 일치하지 않습니다."
-            );
-        }
-
         Vehicle vehicle = vehicleRepository
                 .findById(request.getVehicleId())
                 .orElseThrow(() ->
@@ -118,7 +103,6 @@ public class ReservationService {
         }
 
         Reservation reservation = new Reservation();
-        reservation.setRepairItem(repairItem);
         reservation.setVehicle(vehicle);
 
         User user = entityManager.getReference(
@@ -290,16 +274,9 @@ public class ReservationService {
         repairHistory.setVehicle(reservation.getVehicle());
         repairHistory.setReservation(reservation);
         repairHistory.setShop(reservation.getShop());
-        repairHistory.setRepairItem(reservation.getRepairItem());
 
-        repairHistory.setDescription(
-                reservation.getRepairItem().getDescription()
-        );
-
-        repairHistory.setRepairPrice(
-                reservation.getRepairItem().getPrice()
-        );
-
+        repairHistory.setDescription("정비 완료");
+        repairHistory.setRepairPrice(0);
         repairHistory.setRepairedAt(LocalDateTime.now());
 
         repairHistoryRepository.save(repairHistory);

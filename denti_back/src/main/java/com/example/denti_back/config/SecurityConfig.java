@@ -53,6 +53,8 @@ public class SecurityConfig {
                     "/api/reservations/**"
                 ).authenticated()
 
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
                 // 나머지는 로그인 필요
                 .anyRequest().authenticated()
             )
