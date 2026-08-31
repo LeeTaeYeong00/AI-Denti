@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { analyzeImage } from "../../api/aiAPI";
+import { analyzeImage, confirmSaveAnalysis } from "../../api/aiAPI";
 
 const DAMAGE_LABEL_KR = {
     BREAKAGE: "파손",
@@ -9,17 +9,27 @@ const DAMAGE_LABEL_KR = {
     SEPARATED: "이격",
 };
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
 export default function AiAnalysisPage() {
     const navigate = useNavigate();
     const [file, setFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
 
     const handleFileChange = (e) => {
         const selected = e.target.files[0];
         if (!selected) return;
+
+        if (selected.size > MAX_FILE_SIZE) {
+            setError("이미지 용량은 5MB 이하만 업로드할 수 있습니다.");
+            e.target.value = "";
+            return;
+        }
+
         setFile(selected);
         setPreviewUrl(URL.createObjectURL(selected));
         setResult(null);
@@ -45,12 +55,24 @@ export default function AiAnalysisPage() {
         }
     };
 
-    // 저장 -> 분석 이력으로 이동
-    const handleSave = () => {
-        navigate("/ai/history");
+    // 저장 확정 -> 실제 DB 저장 후 이력 페이지로 이동
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            await confirmSaveAnalysis({
+                imageUrl: result.imageUrls[0],
+                totalCost: result.totalCost,
+                details: result.details,
+            });
+            navigate("/ai/history");
+        } catch (err) {
+            alert("저장에 실패했습니다.");
+        } finally {
+            setSaving(false);
+        }
     };
 
-    // 취소 -> 사진 다시 선택하는 화면으로 초기화
+    // 취소 -> 사진 다시 선택하는 화면으로 초기화 (서버에는 아무것도 안 남음)
     const handleCancel = () => {
         setFile(null);
         setPreviewUrl(null);
@@ -98,6 +120,20 @@ export default function AiAnalysisPage() {
                 <div className="card" style={{ textAlign: "left", marginTop: 16 }}>
                     <h3 style={{ marginBottom: 16 }}>분석 결과</h3>
 
+                    {previewUrl && (
+                        <div className="scan-frame" style={{ marginBottom: 20 }}>
+                            <span className="scan-frame__corner scan-frame__corner--tl" />
+                            <span className="scan-frame__corner scan-frame__corner--tr" />
+                            <span className="scan-frame__corner scan-frame__corner--bl" />
+                            <span className="scan-frame__corner scan-frame__corner--br" />
+                            <img
+                                src={previewUrl}
+                                alt="분석한 사진"
+                                style={{ maxWidth: "100%", maxHeight: 260, borderRadius: 8, display: "block", margin: "0 auto" }}
+                            />
+                        </div>
+                    )}
+
                     <table className="table">
                         <thead>
                             <tr>
@@ -124,11 +160,11 @@ export default function AiAnalysisPage() {
                     </p>
 
                     <div style={{ display: "flex", gap: 8, marginTop: 20, justifyContent: "flex-end" }}>
-                        <button className="btn btn-outline" onClick={handleCancel}>
+                        <button className="btn btn-outline" onClick={handleCancel} disabled={saving}>
                             취소
                         </button>
-                        <button className="btn btn-primary" onClick={handleSave}>
-                            저장 / 예약하러가기
+                        <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+                            {saving ? "저장 중..." : "저장 / 예약하러가기"}
                         </button>
                     </div>
                 </div>
