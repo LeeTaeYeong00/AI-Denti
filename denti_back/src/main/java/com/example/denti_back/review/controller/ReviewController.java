@@ -1,17 +1,18 @@
 package com.example.denti_back.review.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.denti_back.member.security.CustomUserDetails;
 import com.example.denti_back.review.dto.request.ReviewCreateRequest;
 import com.example.denti_back.review.dto.request.ReviewUpdateRequest;
 import com.example.denti_back.review.dto.response.MyReviewResponse;
@@ -28,13 +29,17 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    // 정비가 완료된 예약에 리뷰를 등록한다.
+    // 현재 로그인한 사용자가 완료된 예약에 리뷰를 작성한다.
     @PostMapping
     public ResponseEntity<ReviewResponse> createReview(
-            @RequestHeader("X-User-Id")
-            Long currentUserId,
+            @AuthenticationPrincipal
+            CustomUserDetails userDetails,
             @RequestBody
-            ReviewCreateRequest request) {
+            ReviewCreateRequest request
+    ) {
+
+        Long currentUserId =
+                getRequiredUserId(userDetails);
 
         ReviewResponse response =
                 reviewService.createReview(
@@ -48,12 +53,16 @@ public class ReviewController {
     // 현재 로그인한 사용자가 작성한 리뷰 목록을 조회한다.
     @GetMapping("/my")
     public ResponseEntity<MyReviewResponse> getMyReviews(
-            @RequestHeader("X-User-Id")
-            Long currentUserId,
+            @AuthenticationPrincipal
+            CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0")
             int page,
             @RequestParam(defaultValue = "5")
-            int size) {
+            int size
+    ) {
+
+        Long currentUserId =
+                getRequiredUserId(userDetails);
 
         MyReviewResponse response =
                 reviewService.getMyReviews(
@@ -65,17 +74,18 @@ public class ReviewController {
         return ResponseEntity.ok(response);
     }
 
-    // 리뷰 번호를 기준으로 리뷰 한 건을 조회한다.
-    // 로그인하지 않은 사용자도 리뷰를 조회할 수 있다.
+    // 리뷰 한 건을 조회한다.
+    // 비로그인 사용자도 조회할 수 있으므로 사용자 정보가 없을 수 있다.
     @GetMapping("/{reviewId}")
     public ResponseEntity<ReviewResponse> getReview(
             @PathVariable
             Long reviewId,
-            @RequestHeader(
-                    value = "X-User-Id",
-                    required = false
-            )
-            Long currentUserId) {
+            @AuthenticationPrincipal
+            CustomUserDetails userDetails
+    ) {
+
+        Long currentUserId =
+                getOptionalUserId(userDetails);
 
         ReviewResponse response =
                 reviewService.getReview(
@@ -86,8 +96,8 @@ public class ReviewController {
         return ResponseEntity.ok(response);
     }
 
-    // 특정 정비소의 리뷰 목록과 평균 평점을 조회한다.
-    // 로그인하지 않은 사용자도 정비소 리뷰를 조회할 수 있다.
+    // 특정 정비소의 리뷰와 평균 별점을 조회한다.
+    // 비로그인 사용자도 조회할 수 있다.
     @GetMapping("/shops/{shopId}")
     public ResponseEntity<ShopReviewResponse> getShopReviews(
             @PathVariable
@@ -96,11 +106,12 @@ public class ReviewController {
             int page,
             @RequestParam(defaultValue = "5")
             int size,
-            @RequestHeader(
-                    value = "X-User-Id",
-                    required = false
-            )
-            Long currentUserId) {
+            @AuthenticationPrincipal
+            CustomUserDetails userDetails
+    ) {
+
+        Long currentUserId =
+                getOptionalUserId(userDetails);
 
         ShopReviewResponse response =
                 reviewService.getShopReviews(
@@ -113,15 +124,19 @@ public class ReviewController {
         return ResponseEntity.ok(response);
     }
 
-    // 작성자가 자신의 리뷰를 수정한다.
+    // 현재 로그인한 사용자가 본인의 리뷰를 수정한다.
     @PutMapping("/{reviewId}")
     public ResponseEntity<ReviewResponse> updateReview(
             @PathVariable
             Long reviewId,
-            @RequestHeader("X-User-Id")
-            Long currentUserId,
+            @AuthenticationPrincipal
+            CustomUserDetails userDetails,
             @RequestBody
-            ReviewUpdateRequest request) {
+            ReviewUpdateRequest request
+    ) {
+
+        Long currentUserId =
+                getRequiredUserId(userDetails);
 
         ReviewResponse response =
                 reviewService.updateReview(
@@ -133,13 +148,17 @@ public class ReviewController {
         return ResponseEntity.ok(response);
     }
 
-    // 작성자가 자신의 리뷰를 삭제한다.
+    // 현재 로그인한 사용자가 본인의 리뷰를 삭제한다.
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<Void> deleteReview(
             @PathVariable
             Long reviewId,
-            @RequestHeader("X-User-Id")
-            Long currentUserId) {
+            @AuthenticationPrincipal
+            CustomUserDetails userDetails
+    ) {
+
+        Long currentUserId =
+                getRequiredUserId(userDetails);
 
         reviewService.deleteReview(
                 reviewId,
@@ -147,5 +166,35 @@ public class ReviewController {
         );
 
         return ResponseEntity.noContent().build();
+    }
+
+    // 로그인이 반드시 필요한 기능에서 사용자 번호를 가져온다.
+    private Long getRequiredUserId(
+            CustomUserDetails userDetails
+    ) {
+
+        if (userDetails == null) {
+            throw new IllegalStateException(
+                    "로그인 후 이용할 수 있습니다."
+            );
+        }
+
+        return userDetails
+                .getUser()
+                .getUserId();
+    }
+
+    // 공개 조회 기능에서 로그인한 경우에만 사용자 번호를 가져온다.
+    private Long getOptionalUserId(
+            CustomUserDetails userDetails
+    ) {
+
+        if (userDetails == null) {
+            return null;
+        }
+
+        return userDetails
+                .getUser()
+                .getUserId();
     }
 }

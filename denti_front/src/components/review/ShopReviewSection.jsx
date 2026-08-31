@@ -1,12 +1,36 @@
-import { useCallback, useEffect, useState } from "react";
-import { deleteReview, getShopReviews, toggleReviewLike } from "../../api/reviewAPI";
+import {
+    useCallback,
+    useEffect,
+    useState,
+} from "react";
+
+import {
+    addReviewLike,
+    deleteReview,
+    getShopReviews,
+    removeReviewLike,
+} from "../../api/reviewApi";
+
+import { useAuth } from "../../context/AuthContext";
+
 import ReviewCard from "./ReviewCard";
 import ReviewForm from "./ReviewForm";
 
 // 정비소 상세 화면에 표시할 리뷰 목록 컴포넌트이다.
-function ShopReviewSection({ shopId, currentUserId }) {
-    const [reviewData, setReviewData] = useState(null);
-    const [editingReview, setEditingReview] = useState(null);
+function ShopReviewSection({ shopId }) {
+    const { loginUser } = useAuth();
+
+    // 화면에서 리뷰 작성자 여부를 확인할 때만 사용한다.
+    // 백엔드 API에는 전달하지 않는다.
+    const currentUserId =
+        loginUser?.userId;
+
+    const [reviewData, setReviewData] =
+        useState(null);
+
+    const [editingReview, setEditingReview] =
+        useState(null);
+
     const [page, setPage] = useState(0);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -21,47 +45,94 @@ function ShopReviewSection({ shopId, currentUserId }) {
             setLoading(true);
             setError("");
 
-            const response = await getShopReviews(shopId, currentUserId, page, 5);
+            const response =
+                await getShopReviews(
+                    shopId,
+                    page,
+                    5
+                );
 
             setReviewData(response.data);
         } catch (error) {
             console.error(error);
-            setError("리뷰를 불러오지 못했습니다.");
+
+            setError(
+                "리뷰를 불러오지 못했습니다."
+            );
         } finally {
             setLoading(false);
         }
-    }, [shopId, currentUserId, page]);
+    }, [shopId, page, currentUserId]);
 
-    // 정비소나 페이지가 변경되면 리뷰 목록을 다시 조회한다.
+    // 정비소, 페이지 또는 로그인 사용자가 변경되면
+    // 좋아요 상태를 포함한 리뷰 목록을 다시 조회한다.
     useEffect(() => {
         loadReviews();
     }, [loadReviews]);
 
-    // 좋아요 처리 결과를 현재 화면에 바로 반영한다.
+    // 현재 좋아요 상태에 따라 등록 또는 취소 요청을 보낸다.
     const handleLike = async (reviewId) => {
-        if (!currentUserId) {
-            alert("로그인 후 좋아요를 누를 수 있습니다.");
+        if (!loginUser) {
+            alert(
+                "로그인 후 좋아요를 누를 수 있습니다."
+            );
+
+            return;
+        }
+
+        const currentReview =
+                reviewData?.reviews?.find(
+                    (review) =>
+                        review.reviewId === reviewId
+                );
+
+        if (!currentReview) {
+            alert("리뷰 정보를 찾을 수 없습니다.");
             return;
         }
 
         try {
-            const response = await toggleReviewLike(reviewId, currentUserId);
+            const response =
+                currentReview.liked
+                    ? await removeReviewLike(
+                          reviewId
+                      )
+                    : await addReviewLike(
+                          reviewId
+                      );
 
             setReviewData((previous) => ({
                 ...previous,
-                reviews: previous.reviews.map((review) =>
-                    review.reviewId === reviewId
-                        ? {
-                              ...review,
-                              liked: response.data.liked,
-                              likeCount: response.data.likeCount,
-                          }
-                        : review,
+
+                reviews: previous.reviews.map(
+                    (review) =>
+                        review.reviewId === reviewId
+                            ? {
+                                  ...review,
+                                  liked:
+                                      response.data
+                                          .liked,
+                                  likeCount:
+                                      response.data
+                                          .likeCount,
+                              }
+                            : review
                 ),
             }));
         } catch (error) {
             console.error(error);
-            alert("좋아요 처리에 실패했습니다.");
+
+            const responseMessage =
+                typeof error.response?.data ===
+                "string"
+                    ? error.response.data
+                    : error.response?.data
+                          ?.message;
+
+            alert(
+                responseMessage ||
+                    "좋아요 처리에 실패했습니다."
+            );
         }
     };
 
@@ -73,42 +144,71 @@ function ShopReviewSection({ shopId, currentUserId }) {
 
     // 작성자 본인의 리뷰를 삭제한다.
     const handleDelete = async (reviewId) => {
-        if (!currentUserId) {
-            alert("로그인 후 이용할 수 있습니다.");
+        if (!loginUser) {
+            alert(
+                "로그인 후 이용할 수 있습니다."
+            );
+
             return;
         }
 
-        if (!window.confirm("리뷰를 삭제하시겠습니까?")) {
+        if (
+            !window.confirm(
+                "리뷰를 삭제하시겠습니까?"
+            )
+        ) {
             return;
         }
 
         try {
-            await deleteReview(reviewId, currentUserId);
+            await deleteReview(reviewId);
 
             // 현재 페이지의 마지막 리뷰를 삭제했다면 이전 페이지로 이동한다.
-            if (reviewData.reviews.length === 1 && page > 0) {
-                setPage((previous) => previous - 1);
+            if (
+                reviewData.reviews.length === 1 &&
+                page > 0
+            ) {
+                setPage(
+                    (previous) => previous - 1
+                );
             } else {
                 await loadReviews();
             }
 
             setEditingReview(null);
+
             alert("리뷰가 삭제되었습니다.");
         } catch (error) {
             console.error(error);
 
-            const responseMessage = error.response?.data?.message;
+            const responseMessage =
+                typeof error.response?.data ===
+                "string"
+                    ? error.response.data
+                    : error.response?.data
+                          ?.message;
 
-            alert(responseMessage || "리뷰 삭제에 실패했습니다.");
+            alert(
+                responseMessage ||
+                    "리뷰 삭제에 실패했습니다."
+            );
         }
     };
 
     if (loading) {
-        return <p style={{ fontSize: 14 }}>리뷰를 불러오는 중입니다.</p>;
+        return (
+            <p style={{ fontSize: 14 }}>
+                리뷰를 불러오는 중입니다.
+            </p>
+        );
     }
 
     if (error) {
-        return <p className="form-error">{error}</p>;
+        return (
+            <p className="form-error">
+                {error}
+            </p>
+        );
     }
 
     if (!reviewData) {
@@ -120,40 +220,91 @@ function ShopReviewSection({ shopId, currentUserId }) {
             <div className="section-title-row">
                 <h2>방문자 리뷰</h2>
 
-                <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                    <strong style={{ fontFamily: "var(--font-mono)", fontSize: 20, color: "var(--color-signal-hover)" }}>
-                        ★ {reviewData.averageRating?.toFixed(1) ?? "0.0"}
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "baseline",
+                        gap: 8,
+                    }}
+                >
+                    <strong
+                        style={{
+                            fontFamily:
+                                "var(--font-mono)",
+                            fontSize: 20,
+                            color:
+                                "var(--color-signal-hover)",
+                        }}
+                    >
+                        ★{" "}
+                        {reviewData.averageRating?.toFixed(
+                            1
+                        ) ?? "0.0"}
                     </strong>
-                    <span style={{ fontSize: 13, color: "var(--color-ink-soft)" }}>
-                        리뷰 {reviewData.reviewCount}개
+
+                    <span
+                        style={{
+                            fontSize: 13,
+                            color:
+                                "var(--color-ink-soft)",
+                        }}
+                    >
+                        리뷰{" "}
+                        {reviewData.reviewCount}개
                     </span>
                 </div>
             </div>
 
             {reviewData.reviews.length === 0 ? (
-                <div className="empty-state">아직 작성된 리뷰가 없습니다.</div>
+                <div className="empty-state">
+                    아직 작성된 리뷰가 없습니다.
+                </div>
             ) : (
                 <div>
-                    {reviewData.reviews.map((review) => (
-                        <div key={review.reviewId}>
-                            {editingReview?.reviewId === review.reviewId ? (
-                                <ReviewForm
-                                    currentUserId={currentUserId}
-                                    review={editingReview}
-                                    onSuccess={handleEditSuccess}
-                                    onCancel={() => setEditingReview(null)}
-                                />
-                            ) : (
-                                <ReviewCard
-                                    review={review}
-                                    currentUserId={currentUserId}
-                                    onLike={handleLike}
-                                    onEdit={setEditingReview}
-                                    onDelete={handleDelete}
-                                />
-                            )}
-                        </div>
-                    ))}
+                    {reviewData.reviews.map(
+                        (review) => (
+                            <div
+                                key={
+                                    review.reviewId
+                                }
+                            >
+                                {editingReview?.reviewId ===
+                                review.reviewId ? (
+                                    <ReviewForm
+                                        review={
+                                            editingReview
+                                        }
+                                        onSuccess={
+                                            handleEditSuccess
+                                        }
+                                        onCancel={() =>
+                                            setEditingReview(
+                                                null
+                                            )
+                                        }
+                                    />
+                                ) : (
+                                    <ReviewCard
+                                        review={
+                                            review
+                                        }
+                                        currentUserId={
+                                            currentUserId
+                                        }
+                                        onLike={
+                                            handleLike
+                                        }
+                                        onEdit={
+                                            setEditingReview
+                                        }
+                                        onDelete={
+                                            handleDelete
+                                        }
+                                    />
+                                )}
+                            </div>
+                        )
+                    )}
                 </div>
             )}
 
@@ -162,21 +313,37 @@ function ShopReviewSection({ shopId, currentUserId }) {
                     type="button"
                     className="btn btn-ghost btn-sm"
                     disabled={page === 0}
-                    onClick={() => setPage((previous) => previous - 1)}
+                    onClick={() =>
+                        setPage(
+                            (previous) =>
+                                previous - 1
+                        )
+                    }
                 >
                     이전
                 </button>
 
                 <span>
-                    {reviewData.totalPages === 0 ? 0 : reviewData.currentPage + 1}
+                    {reviewData.totalPages === 0
+                        ? 0
+                        : reviewData.currentPage +
+                          1}
                     /{reviewData.totalPages}
                 </span>
 
                 <button
                     type="button"
                     className="btn btn-ghost btn-sm"
-                    disabled={page + 1 >= reviewData.totalPages}
-                    onClick={() => setPage((previous) => previous + 1)}
+                    disabled={
+                        page + 1 >=
+                        reviewData.totalPages
+                    }
+                    onClick={() =>
+                        setPage(
+                            (previous) =>
+                                previous + 1
+                        )
+                    }
                 >
                     다음
                 </button>

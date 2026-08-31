@@ -47,6 +47,19 @@
          <artifactId>spring-boot-starter-validation</artifactId>
       </dependency>
 
+      <!-- API 요청 횟수를 제한하기 위한 라이브러리 -->
+      <dependency>
+         <groupId>com.bucket4j</groupId>
+         <artifactId>bucket4j_jdk17-core</artifactId>
+         <version>8.14.0</version>
+      </dependency>
+
+      <!-- 사용자별 Rate Limit 정보를 일정 시간 동안 저장한다. -->
+      <dependency>
+         <groupId>com.github.ben-manes.caffeine</groupId>
+         <artifactId>caffeine</artifactId>
+      </dependency>
+
       <dependency>
          <groupId>org.springframework.boot</groupId>
          <artifactId>spring-boot-devtools</artifactId>

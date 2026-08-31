@@ -37,6 +37,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReservationRepository reservationRepository;
     private final ReviewImageRepository reviewImageRepository;
+    private final ReviewImageService reviewImageService;
     private final ReviewReplyRepository reviewReplyRepository;
     private final ReviewLikeRepository reviewLikeRepository;
 
@@ -282,8 +283,9 @@ public class ReviewService {
         );
 
         // 외래키로 연결된 데이터를 먼저 삭제한다.
-        reviewImageRepository
-                .deleteByReview_ReviewId(reviewId);
+        // DB 이미지 정보뿐 아니라 서버에 저장된 실제 파일도 함께 삭제한다.
+        reviewImageService
+                .deleteAllImagesByReviewId(reviewId);
 
         reviewReplyRepository
                 .deleteByReview_ReviewId(reviewId);

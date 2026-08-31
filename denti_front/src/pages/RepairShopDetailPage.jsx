@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ShopReviewSection from "../components/review/ShopReviewSection";
-import MyReviewSection from "../components/review/MyReviewSection";
 import { getRepairShopHours } from "../api/repairShopHourAPI";
 import { getRepairShopByShopId } from "../api/repairShopAPI";
 import { getAvailableTimes, createReservation } from "../api/reservationAPI";
@@ -317,12 +316,7 @@ function RepairShopDetailPage() {
             </div>
 
             <div className="card">
-                <ShopReviewSection shopId={shop.shopId} currentUserId={loginUser?.userId} />
-            </div>
-
-            <div className="card">
-                <h2 style={{ marginBottom: 16 }}>내 리뷰</h2>
-                <MyReviewSection currentUserId={loginUser?.userId} />
+                <ShopReviewSection shopId={shop.shopId} />
             </div>
         </div>
     );
