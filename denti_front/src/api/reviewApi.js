@@ -130,3 +130,10 @@ export const getMyReviews = (
         }
     );
 };
+
+// 현재 사용자가 리뷰를 작성한 예약 번호 목록을 조회한다.
+export const getMyReviewedReservationIds = () => {
+    return api.get(
+        `${ENDPOINTS.REVIEW.MY}/reservation-ids`
+    );
+};

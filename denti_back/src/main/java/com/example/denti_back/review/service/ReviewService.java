@@ -236,6 +236,24 @@ public class ReviewService {
         return response;
     }
 
+    // 현재 사용자가 리뷰를 작성한 예약 번호 목록을 조회한다.
+    // 예약 내역에서 리뷰 작성 버튼 표시 여부를 판단할 때 사용한다.
+    public List<Long> getMyReviewedReservationIds(
+            Long currentUserId
+    ) {
+
+        if (currentUserId == null) {
+            throw new IllegalArgumentException(
+                    "로그인 사용자 정보가 필요합니다."
+            );
+        }
+
+        return reviewRepository
+                .findReviewedReservationIdsByUserId(
+                        currentUserId
+                );
+    }
+
     // 작성자가 자신의 리뷰를 수정한다.
     @Transactional
     public ReviewResponse updateReview(

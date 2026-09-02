@@ -1,5 +1,7 @@
 package com.example.denti_back.review.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -72,6 +74,29 @@ public class ReviewController {
                 );
 
         return ResponseEntity.ok(response);
+    }
+
+    // 현재 사용자가 리뷰를 작성한 예약 번호 목록을 조회한다.
+    // 예약 내역에서 리뷰 작성 버튼 표시 여부를 확인할 때 사용한다.
+    @GetMapping("/my/reservation-ids")
+    public ResponseEntity<List<Long>>
+    getMyReviewedReservationIds(
+            @AuthenticationPrincipal
+            CustomUserDetails userDetails
+    ) {
+
+        Long currentUserId =
+                getRequiredUserId(userDetails);
+
+        List<Long> reservationIds =
+                reviewService
+                        .getMyReviewedReservationIds(
+                                currentUserId
+                        );
+
+        return ResponseEntity.ok(
+                reservationIds
+        );
     }
 
     // 리뷰 한 건을 조회한다.
