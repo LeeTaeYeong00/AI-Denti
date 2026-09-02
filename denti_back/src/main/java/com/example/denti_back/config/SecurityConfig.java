@@ -45,6 +45,7 @@ public class SecurityConfig {
                 // 정비 항목 조회
                 .requestMatchers(
                     org.springframework.http.HttpMethod.GET,
+                    "/api/repair-items",
                     "/api/repair-items/shop/**"
                 ).permitAll()
 

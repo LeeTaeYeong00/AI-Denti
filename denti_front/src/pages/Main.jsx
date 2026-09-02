@@ -35,9 +35,12 @@ const SLIDES = [
 const FEATURES = [
     { icon: ScanIcon, label: "AI 파손 분석", desc: "사진으로 파손 진단 받기", to: "/ai", tint: "signal", authOnly: true },
     { icon: MapPinIcon, label: "정비소 지도", desc: "내 주변 정비소 찾기", to: "/map", tint: "info" },
+    { icon: WrenchIcon, label: "정비 서비스", desc: "정비 항목과 가격 비교하기", to: "/repair-item-list", tint: "ink" },
+    { icon: WrenchIcon, label: "부품·용품", desc: "차량 부품과 용품 둘러보기", to: "/product-list", tint: "success" },
     { icon: UserIcon, label: "마이페이지", desc: "예약, 차량, 이력 한눈에", to: "/mypage", tint: "success", authOnly: true },
-    { icon: WrenchIcon, label: "내 정비소", desc: "정비소 등록 및 예약 관리", to: "/my-shop", tint: "ink", authOnly: true },];
-
+    { icon: WrenchIcon, label: "내 주문", desc: "주문 내역 확인하기", to: "/my-orders", tint: "info", authOnly: true },
+    { icon: WrenchIcon, label: "내 정비소", desc: "정비소 등록 및 예약 관리", to: "/my-shop", tint: "ink", authOnly: true },
+];
 export default function Main() {
     const { loginUser } = useAuth();
 

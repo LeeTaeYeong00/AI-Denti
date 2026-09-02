@@ -134,7 +134,7 @@ export default function MyShopPage() {
         );
     }
 
-    // 승인 완료 -> 대시보드로 연결
+    // 승인 완료 -> 정비소 관리 메뉴
     return (
         <div className="page" style={{ maxWidth: 480 }}>
             <div className="page-header">
@@ -144,10 +144,31 @@ export default function MyShopPage() {
             </div>
 
             <div className="card">
-                <p style={{ fontSize: 14, marginBottom: 16 }}>승인된 정비소입니다. 예약 관리 대시보드로 이동하세요.</p>
+                <p style={{ fontSize: 14, marginBottom: 16 }}>
+                    승인된 정비소입니다. 정비소 관리 기능을 이용하실 수 있습니다.
+                </p>
+
                 <Link to="/shop-reservations">
-                    <button className="btn btn-primary btn-block">예약 관리 대시보드로 이동</button>
+                    <button className="btn btn-primary btn-block">
+                        예약 관리
+                    </button>
                 </Link>
+
+                <div style={{ marginTop: 10 }}>
+                    <Link to="/repair-items">
+                        <button className="btn btn-outline btn-block">
+                            정비 항목 관리
+                        </button>
+                    </Link>
+                </div>
+
+                <div style={{ marginTop: 10 }}>
+                    <Link to="/products">
+                        <button className="btn btn-outline btn-block">
+                            상품 관리
+                        </button>
+                    </Link>
+                </div>             
             </div>
         </div>
     );

@@ -32,6 +32,14 @@ public class RepairItemController {
         );
     }
 
+        // 전체 정비 항목 조회
+        @GetMapping
+        public ResponseEntity<List<RepairItem>> getAllItems() {
+        return ResponseEntity.ok(
+                repairItemRepository.findByActiveTrue()
+        );
+        }
+
     // 정비소 판매 품목 등록
     @PostMapping("/shop/{shopId}")
     public ResponseEntity<RepairItem> createItem(

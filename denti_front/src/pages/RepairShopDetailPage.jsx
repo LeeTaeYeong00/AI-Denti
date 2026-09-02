@@ -4,9 +4,9 @@ import { useAuth } from "../context/AuthContext";
 import ShopReviewSection from "../components/review/ShopReviewSection";
 import MyReviewSection from "../components/review/MyReviewSection";
 import { getRepairShopHours } from "../api/repairShopHourAPI";
-import { getRepairShopByShopId } from "../api/repairShopAPI";
 import { getAvailableTimes, createReservation } from "../api/reservationAPI";
 import { getMyVehicles, createVehicle } from "../api/vehicleAPI";
+import { getRepairShop, getRepairShopByShopId } from "../api/repairShopAPI";
 
 function RepairShopDetailPage() {
     const { shopId } = useParams();
@@ -31,12 +31,21 @@ function RepairShopDetailPage() {
     useEffect(() => {
         const getShop = async () => {
             try {
-                const data = await getRepairShopByShopId(shopId);
-                setShop(data);
+                const shopData = await getRepairShop(shopId);
+                const addressData = await getRepairShopByShopId(shopId);
+
+                console.log("정비소 정보:", shopData);
+                console.log("주소/좌표 정보:", addressData);
+
+                setShop({
+                    ...shopData,
+                    ...addressData,
+                });
             } catch (error) {
                 console.error("정비소 상세 조회 실패:", error);
             }
         };
+
         getShop();
     }, [shopId]);
 
@@ -131,6 +140,10 @@ function RepairShopDetailPage() {
         if (!kakaoLoaded) return;
 
         window.kakao.maps.load(() => {
+            console.log("지도용 shop 데이터:", shop);
+            console.log("위도:", shop.latitude);
+            console.log("경도:", shop.longitude);
+
             const container = document.getElementById("detail-map");
             if (!container) return;
 
