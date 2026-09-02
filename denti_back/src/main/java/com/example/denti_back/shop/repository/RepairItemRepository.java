@@ -15,4 +15,7 @@ public interface RepairItemRepository
 
     // 특정 정비소의 활성화된 판매 품목
     List<RepairItem> findByShop_ShopIdAndActiveTrue(Long shopId);
+
+    // 모든 정비소의 활성화된 판매 품목
+    List<RepairItem> findByActiveTrue();
 }

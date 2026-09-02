@@ -15,6 +15,11 @@ export const getRepairShopByShopId = async (shopId) => {
     return response.data;
 };
 
+export const getRepairShop = async (shopId) => {
+    const response = await api.get(`${ENDPOINTS.REPAIR_SHOP.BASE}/${shopId}`);
+    return response.data;
+};
+
 // 현재 로그인한 정비소 사장님의 정비소 조회
 export const getMyRepairShop = async () => {
     const response = await api.get(ENDPOINTS.REPAIR_SHOP.MY);
