@@ -2,6 +2,7 @@ package com.example.denti_back.ai.controller;
 
 import com.example.denti_back.ai.dto.AiAnalysisResponse;
 import com.example.denti_back.ai.dto.AiAnalysisSummaryResponse;
+import com.example.denti_back.ai.dto.ConfirmSaveRequest;
 import com.example.denti_back.ai.service.AiEstimateService;
 import com.example.denti_back.member.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +20,27 @@ public class AiController {
 
     private final AiEstimateService aiEstimateService;
 
+    // 1단계: 분석만 (DB 저장 안 함)
     @PostMapping("/analyze")
     public AiAnalysisResponse analyze(
             @RequestParam("image") MultipartFile image,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) throws IOException {
-        return aiEstimateService.analyzeAndSave(image, userDetails.getUser());
+        return aiEstimateService.analyzePreview(image);
+    }
+
+    // 2단계: 저장 확정
+    @PostMapping("/confirm-save")
+    public AiAnalysisResponse confirmSave(
+            @RequestBody ConfirmSaveRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return aiEstimateService.confirmSave(
+                userDetails.getUser(),
+                request.getImageUrl(),
+                request.getTotalCost(),
+                request.getDetails()
+        );
     }
 
     @GetMapping("/history")
