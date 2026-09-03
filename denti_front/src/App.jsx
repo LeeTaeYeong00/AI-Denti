@@ -22,6 +22,7 @@ import MyPage from "./pages/MyPage";
 import MyShopPage from "./pages/MyShopPage";
 import RepairItemPage from "./pages/RepairItemPage";
 import AdminShopApprovalPage from "./pages/AdminShopApprovalPage";
+import AdminRoute from "./components/AdminRoute";
 
 
 function App() {
@@ -141,9 +142,9 @@ function App() {
                     <Route
                         path="/admin/repair-shops"
                         element={
-                            <ProtectedRoute>
+                            <AdminRoute>
                                 <AdminShopApprovalPage />
-                            </ProtectedRoute>
+                            </AdminRoute>
                         }
                     />
 

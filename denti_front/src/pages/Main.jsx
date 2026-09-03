@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import PromoBanner from "../components/PromoBanner";
 import {
@@ -8,10 +9,8 @@ import {
     FileIcon,
     HistoryIcon,
     WrenchIcon,
-    UserIcon,
 } from "../components/icons";
 
-// 광고/이벤트 배너 슬라이드. 필요할 때마다 배열에 추가/수정하면 된다.
 const SLIDES = [
     {
         eyebrow: "AI-DENTI",
@@ -31,15 +30,35 @@ const SLIDES = [
     },
 ];
 
-// 메인 바로가기 타일. 로그인 필요한 기능은 authOnly로 표시한다.
 const FEATURES = [
     { icon: ScanIcon, label: "AI 파손 분석", desc: "사진으로 파손 진단 받기", to: "/ai", tint: "signal", authOnly: true },
     { icon: MapPinIcon, label: "정비소 지도", desc: "내 주변 정비소 찾기", to: "/map", tint: "info" },
-    { icon: UserIcon, label: "마이페이지", desc: "예약, 차량, 이력 한눈에", to: "/mypage", tint: "success", authOnly: true },
-    { icon: WrenchIcon, label: "내 정비소", desc: "정비소 등록 및 예약 관리", to: "/my-shop", tint: "ink", authOnly: true },];
+    { icon: CalendarIcon, label: "내 예약", desc: "예약 현황 확인하기", to: "/my-reservations", tint: "success", authOnly: true },
+    { icon: FileIcon, label: "정비 이력", desc: "지난 정비 기록 보기", to: "/repair-history", tint: "pending", authOnly: true },
+    { icon: HistoryIcon, label: "AI 분석 이력", desc: "지난 분석 결과 다시보기", to: "/ai/history", tint: "danger", authOnly: true },
+    { icon: WrenchIcon, label: "정비소 예약관리", desc: "접수된 예약 처리하기", to: "/shop-reservations", tint: "ink" },
+];
+
+const ADMIN_FEATURES = [
+    { icon: WrenchIcon, label: "정비소 승인 관리", desc: "등록 신청 승인/반려 처리", to: "/admin/repair-shops", tint: "ink" },
+];
 
 export default function Main() {
     const { loginUser } = useAuth();
+    const navigate = useNavigate();
+    const isAdmin = loginUser?.role === "ADMIN";
+
+    // 관리자가 / 로 접속하면 자동으로 승인 관리 페이지로 이동
+    useEffect(() => {
+        if (isAdmin) {
+            navigate("/admin/repair-shops", { replace: true });
+        }
+    }, [isAdmin, navigate]);
+
+    if (isAdmin) {
+        // 리다이렉트되기 전 잠깐 보일 화면
+        return null;
+    }
 
     return (
         <div className="page page--wide">

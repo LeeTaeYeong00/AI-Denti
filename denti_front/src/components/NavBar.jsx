@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 export default function NavBar() {
     const { loginUser, setLoginUser } = useAuth();
     const navigate = useNavigate();
+    const isAdmin = loginUser?.role === "ADMIN";
 
     const handleLogout = async () => {
         await logout();
@@ -14,14 +15,17 @@ export default function NavBar() {
 
     return (
         <header className="site-header">
-            {/* 상단 얇은 유틸리티 바 */}
             <div className="nav-utility">
-                <span>AI 기반 차량 파손 진단 · 정비소 예약 플랫폼</span>
+                <span>
+                    {isAdmin ? "관리자 모드" : "AI 기반 차량 파손 진단 · 정비소 예약 플랫폼"}
+                </span>
 
                 <div className="nav-utility__links">
                     {loginUser ? (
                         <>
-                            <span>{loginUser.nickName}님</span>
+                            <span>
+                                {loginUser.nickName}님{isAdmin && " (관리자)"}
+                            </span>
                             <button type="button" className="link-plain" onClick={handleLogout}>
                                 로그아웃
                             </button>
@@ -35,7 +39,6 @@ export default function NavBar() {
                 </div>
             </div>
 
-            {/* 로고 + 큰 메뉴 + CTA */}
             <nav className="nav-main">
                 <Link to="/" className="nav-main__brand">
                     <span className="nav-main__mark" aria-hidden="true" />
@@ -43,20 +46,34 @@ export default function NavBar() {
                 </Link>
 
                 <div className="nav-main__links">
-                    <Link to="/map" className="nav-main__link">정비소 지도</Link>
-                    {loginUser && (
+                    {isAdmin ? (
+                        // 관리자 전용 메뉴
                         <>
-                            <Link to="/mypage" className="nav-main__link">마이페이지</Link>
-                            <Link to="/my-reservations" className="nav-main__link">내 예약</Link>
-                            <Link to="/repair-history" className="nav-main__link">정비 이력</Link>
-                            <Link to="/ai" className="nav-main__link">AI 분석</Link>
-                            <Link to="/my-shop" className="nav-main__link">내 정비소</Link>
+                            <Link to="/admin/repair-shops" className="nav-main__link">정비소 승인 관리</Link>
+                        </>
+                    ) : (
+                        // 일반 사용자 메뉴
+                        <>
+                            <Link to="/map" className="nav-main__link">정비소 지도</Link>
+                            {loginUser && (
+                                <>
+                                    <Link to="/mypage" className="nav-main__link">마이페이지</Link>
+                                    <Link to="/my-reservations" className="nav-main__link">내 예약</Link>
+                                    <Link to="/repair-history" className="nav-main__link">정비 이력</Link>
+                                    <Link to="/ai" className="nav-main__link">AI 분석</Link>
+                                    <Link to="/my-shop" className="nav-main__link">내 정비소</Link>
+                                </>
+                            )}
                         </>
                     )}
                 </div>
 
                 <div className="nav-main__cta">
-                    {loginUser ? (
+                    {isAdmin ? (
+                        <Link to="/admin/repair-shops">
+                            <button className="btn btn-primary">승인 대기 확인</button>
+                        </Link>
+                    ) : loginUser ? (
                         <Link to="/ai">
                             <button className="btn btn-primary">AI 분석 시작</button>
                         </Link>

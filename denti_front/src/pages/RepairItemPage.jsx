@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { getMyRepairShop } from "../api/repairShopAPI";
+import { getMyRepairShops } from "../api/repairShopAPI";
 import {
     getRepairItemsByShop,
     createRepairItem,
@@ -27,7 +27,7 @@ function RepairItemPage() {
 
         const loadMyShop = async () => {
             try {
-                const data = await getMyRepairShop();
+                const data = await getMyRepairShops();
 
                 console.log("내 정비소:", data);
 
