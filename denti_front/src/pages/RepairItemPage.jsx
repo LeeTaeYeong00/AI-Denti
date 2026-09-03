@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getMyRepairShop } from "../api/repairShopAPI";
+import { getMyRepairShops } from "../api/repairShopAPI";
 import {
     getRepairItemsByShop,
     createRepairItem,
@@ -10,7 +11,10 @@ import {
 
 function RepairItemPage() {
     const { loginUser } = useAuth();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const shopIdParam = searchParams.get("shopId");
 
+    const [shops, setShops] = useState([]);
     const [shop, setShop] = useState(null);
     const [items, setItems] = useState([]);
 
@@ -21,45 +25,50 @@ function RepairItemPage() {
     const [description, setDescription] = useState("");
     const [price, setPrice] = useState("");
 
-    // 내 정비소 조회
+    // 내 정비소 목록 조회
     useEffect(() => {
         if (!loginUser) return;
 
-        const loadMyShop = async () => {
+        const loadMyShops = async () => {
             try {
-                const data = await getMyRepairShop();
+                const data = await getMyRepairShops();
+                const approvedShops = data.filter((s) => s.approvalStatus === "APPROVED");
 
-                console.log("내 정비소:", data);
+                console.log("내 정비소 목록:", approvedShops);
 
-                setShop(data);
+                setShops(approvedShops);
+
+                // URL에 shopId가 있으면 그 정비소 선택, 없고 1개뿐이면 자동 선택
+                if (shopIdParam) {
+                    const found = approvedShops.find((s) => String(s.shopId) === shopIdParam);
+                    setShop(found ?? null);
+                } else if (approvedShops.length === 1) {
+                    setShop(approvedShops[0]);
+                }
             } catch (error) {
                 console.error("내 정비소 조회 실패:", error);
             }
         };
 
-        loadMyShop();
-    }, [loginUser]);
+        loadMyShops();
+    }, [loginUser, shopIdParam]);
 
     // 판매 품목 조회
     useEffect(() => {
         if (!shop) return;
-
         loadItems();
     }, [shop]);
 
     const loadItems = async () => {
         try {
             const data = await getRepairItemsByShop(shop.shopId);
-
             console.log("판매 품목:", data);
-
             setItems(data);
         } catch (error) {
             console.error("판매 품목 조회 실패:", error);
         }
     };
 
-    // 입력값 초기화
     const resetForm = () => {
         setName("");
         setDescription("");
@@ -68,13 +77,11 @@ function RepairItemPage() {
         setShowForm(false);
     };
 
-    // 등록
     const handleCreate = async () => {
         if (!name.trim()) {
             alert("품목명을 입력해주세요.");
             return;
         }
-
         if (!price) {
             alert("가격을 입력해주세요.");
             return;
@@ -86,9 +93,7 @@ function RepairItemPage() {
                 description,
                 price: Number(price),
             });
-
             alert("판매 품목이 등록되었습니다.");
-
             resetForm();
             await loadItems();
         } catch (error) {
@@ -97,7 +102,6 @@ function RepairItemPage() {
         }
     };
 
-    // 수정 시작
     const handleEdit = (item) => {
         setEditingItemId(item.itemId);
         setName(item.name);
@@ -106,13 +110,11 @@ function RepairItemPage() {
         setShowForm(true);
     };
 
-    // 수정
     const handleUpdate = async () => {
         if (!name.trim()) {
             alert("품목명을 입력해주세요.");
             return;
         }
-
         if (!price) {
             alert("가격을 입력해주세요.");
             return;
@@ -124,9 +126,7 @@ function RepairItemPage() {
                 description,
                 price: Number(price),
             });
-
             alert("판매 품목이 수정되었습니다.");
-
             resetForm();
             await loadItems();
         } catch (error) {
@@ -135,17 +135,12 @@ function RepairItemPage() {
         }
     };
 
-    // 비활성화
     const handleDelete = async (itemId) => {
-        if (!window.confirm("이 판매 품목을 판매 중지하시겠습니까?")) {
-            return;
-        }
+        if (!window.confirm("이 판매 품목을 판매 중지하시겠습니까?")) return;
 
         try {
             await deleteRepairItem(itemId);
-
             alert("판매 품목이 판매 중지되었습니다.");
-
             await loadItems();
         } catch (error) {
             console.error("판매 품목 삭제 실패:", error);
@@ -156,19 +151,40 @@ function RepairItemPage() {
     if (!loginUser) {
         return (
             <div className="page">
-                <div className="empty-state">
-                    로그인 후 이용해주세요.
-                </div>
+                <div className="empty-state">로그인 후 이용해주세요.</div>
             </div>
         );
     }
 
+    // 정비소가 여러 개면 선택 화면 먼저 표시
     if (!shop) {
-        return (
-            <div className="page">
-                <div className="empty-state">
-                    정비소 정보를 불러오는 중...
+        if (shops.length === 0) {
+            return (
+                <div className="page">
+                    <div className="empty-state">승인된 정비소가 없습니다.</div>
                 </div>
+            );
+        }
+
+        return (
+            <div className="page" style={{ maxWidth: 480 }}>
+                <div className="page-header">
+                    <span className="eyebrow">SHOP PRODUCTS</span>
+                    <h1 style={{ fontSize: 28 }}>정비소 선택</h1>
+                    <p style={{ marginTop: 6 }}>판매 품목을 관리할 정비소를 선택해주세요.</p>
+                </div>
+
+                {shops.map((s) => (
+                    <button
+                        key={s.shopId}
+                        className="card"
+                        style={{ width: "100%", textAlign: "left", cursor: "pointer" }}
+                        onClick={() => setSearchParams({ shopId: s.shopId })}
+                    >
+                        <h3>{s.name}</h3>
+                        <p style={{ fontSize: 14 }}>{s.phone}</p>
+                    </button>
+                ))}
             </div>
         );
     }
@@ -178,26 +194,14 @@ function RepairItemPage() {
             <div className="page-header">
                 <span className="eyebrow">SHOP PRODUCTS</span>
                 <h1 style={{ fontSize: 28 }}>판매 품목 관리</h1>
-                <p style={{ marginTop: 6 }}>
-                    {shop.shopName || "내 정비소"}의 판매 품목을 관리합니다.
-                </p>
+                <p style={{ marginTop: 6 }}>{shop.name}의 판매 품목을 관리합니다.</p>
             </div>
 
             <div className="card">
-                <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        gap: 12,
-                        flexWrap: "wrap",
-                    }}
-                >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
                     <div>
                         <h2 style={{ marginBottom: 4 }}>판매 품목</h2>
-                        <p style={{ fontSize: 14 }}>
-                            정비소에서 판매하는 품목을 등록하고 관리할 수 있습니다.
-                        </p>
+                        <p style={{ fontSize: 14 }}>정비소에서 판매하는 품목을 등록하고 관리할 수 있습니다.</p>
                     </div>
 
                     <button
@@ -214,9 +218,7 @@ function RepairItemPage() {
 
             {showForm && (
                 <div className="card">
-                    <h2 style={{ marginBottom: 16 }}>
-                        {editingItemId ? "판매 품목 수정" : "판매 품목 등록"}
-                    </h2>
+                    <h2 style={{ marginBottom: 16 }}>{editingItemId ? "판매 품목 수정" : "판매 품목 등록"}</h2>
 
                     <div className="field">
                         <label className="field-label">품목명</label>
@@ -252,21 +254,10 @@ function RepairItemPage() {
                     </div>
 
                     <div style={{ display: "flex", gap: 8 }}>
-                        <button
-                            className="btn btn-primary"
-                            onClick={
-                                editingItemId
-                                    ? handleUpdate
-                                    : handleCreate
-                            }
-                        >
+                        <button className="btn btn-primary" onClick={editingItemId ? handleUpdate : handleCreate}>
                             {editingItemId ? "수정" : "등록"}
                         </button>
-
-                        <button
-                            className="btn btn-ghost"
-                            onClick={resetForm}
-                        >
+                        <button className="btn btn-ghost" onClick={resetForm}>
                             취소
                         </button>
                     </div>
@@ -274,62 +265,27 @@ function RepairItemPage() {
             )}
 
             {items.length === 0 ? (
-                <div className="empty-state">
-                    등록된 판매 품목이 없습니다.
-                </div>
+                <div className="empty-state">등록된 판매 품목이 없습니다.</div>
             ) : (
                 items.map((item) => (
                     <div className="card" key={item.itemId}>
-                        <div
-                            style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "flex-start",
-                                gap: 12,
-                                flexWrap: "wrap",
-                            }}
-                        >
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
                             <div>
                                 <h3>{item.name}</h3>
-
                                 {item.description && (
-                                    <p
-                                        style={{
-                                            marginTop: 6,
-                                            fontSize: 14,
-                                            color: "var(--color-ink-soft)",
-                                        }}
-                                    >
+                                    <p style={{ marginTop: 6, fontSize: 14, color: "var(--color-ink-soft)" }}>
                                         {item.description}
                                     </p>
                                 )}
                             </div>
-
-                            <strong>
-                                {Number(item.price).toLocaleString()}원
-                            </strong>
+                            <strong>{Number(item.price).toLocaleString()}원</strong>
                         </div>
 
-                        <div
-                            style={{
-                                display: "flex",
-                                gap: 8,
-                                marginTop: 16,
-                            }}
-                        >
-                            <button
-                                className="btn btn-outline btn-sm"
-                                onClick={() => handleEdit(item)}
-                            >
+                        <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+                            <button className="btn btn-outline btn-sm" onClick={() => handleEdit(item)}>
                                 수정
                             </button>
-
-                            <button
-                                className="btn btn-danger btn-sm"
-                                onClick={() =>
-                                    handleDelete(item.itemId)
-                                }
-                            >
+                            <button className="btn btn-danger btn-sm" onClick={() => handleDelete(item.itemId)}>
                                 판매 중지
                             </button>
                         </div>

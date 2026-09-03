@@ -29,6 +29,7 @@ import ProductPage from "./pages/ProductPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductListPage from "./pages/ProductListPage";
 import AdminShopApprovalPage from "./pages/AdminShopApprovalPage";
+import AdminRoute from "./components/AdminRoute";
 
 
 function App() {
@@ -202,9 +203,9 @@ function App() {
                     <Route
                         path="/admin/repair-shops"
                         element={
-                            <ProtectedRoute>
+                            <AdminRoute>
                                 <AdminShopApprovalPage />
-                            </ProtectedRoute>
+                            </AdminRoute>
                         }
                     />
 
