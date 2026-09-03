@@ -115,16 +115,33 @@ export default function MyShopPage() {
                         </div>
 
                         {shop.approvalStatus === "APPROVED" && (
-                            <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-                                <button
-                                    className="btn btn-primary btn-sm"
-                                    onClick={() => navigate(`/shop-reservations?shopId=${shop.shopId}`)}
-                                >
-                                    예약 관리 대시보드로 이동
-                                </button>
-                                <button className="btn btn-danger btn-sm" onClick={() => handleDelete(shop.shopId)}>
-                                    정비소 삭제
-                                </button>
+                            <div style={{ marginTop: 16 }}>
+                                <p style={{ fontSize: 13, marginBottom: 12, color: "var(--color-ink-soft)" }}>
+                                    승인된 정비소입니다. 정비소 관리 기능을 이용하실 수 있습니다.
+                                </p>
+                                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                                    <button
+                                        className="btn btn-primary btn-sm"
+                                        onClick={() => navigate(`/shop-reservations?shopId=${shop.shopId}`)}
+                                    >
+                                        예약 관리
+                                    </button>
+                                    <button
+                                        className="btn btn-outline btn-sm"
+                                        onClick={() => navigate("/repair-items")}
+                                    >
+                                        정비 항목 관리
+                                    </button>
+                                    <button
+                                        className="btn btn-outline btn-sm"
+                                        onClick={() => navigate("/products")}
+                                    >
+                                        상품 관리
+                                    </button>
+                                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(shop.shopId)}>
+                                        정비소 삭제
+                                    </button>
+                                </div>
                             </div>
                         )}
 
@@ -139,21 +156,21 @@ export default function MyShopPage() {
                             </div>
                         )}
 
-                    {shop.approvalStatus === "REJECTED" && (
-                        <div style={{ marginTop: 12 }}>
-                            <p className="form-error" style={{ marginBottom: 8 }}>
-                                반려 사유: {shop.rejectReason || "사유가 등록되지 않았습니다."}
-                            </p>
-                            <div style={{ display: "flex", gap: 8 }}>
-                                <button className="btn btn-primary btn-sm" onClick={() => setMode({ type: "edit", shop })}>
-                                    수정 후 재등록
-                                </button>
-                                <button className="btn btn-danger btn-sm" onClick={() => handleDelete(shop.shopId)}>
-                                    삭제
-                                </button>
+                        {shop.approvalStatus === "REJECTED" && (
+                            <div style={{ marginTop: 12 }}>
+                                <p className="form-error" style={{ marginBottom: 8 }}>
+                                    반려 사유: {shop.rejectReason || "사유가 등록되지 않았습니다."}
+                                </p>
+                                <div style={{ display: "flex", gap: 8 }}>
+                                    <button className="btn btn-primary btn-sm" onClick={() => setMode({ type: "edit", shop })}>
+                                        수정 후 재등록
+                                    </button>
+                                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(shop.shopId)}>
+                                        삭제
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
                     </div>
                 ))
             )}
@@ -409,9 +426,3 @@ function ShopForm({ mode, shop, onCancel, onSuccess }) {
         </div>
     );
 }
-
-// repairShopAPI.js에 추가
-export const getShopHistory = async (shopId) => {
-    const response = await api.get(`/api/admin/repair-shops/${shopId}/history`);
-    return response.data;
-};

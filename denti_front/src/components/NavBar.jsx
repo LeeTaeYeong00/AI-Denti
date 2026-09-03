@@ -47,18 +47,17 @@ export default function NavBar() {
 
                 <div className="nav-main__links">
                     {isAdmin ? (
-                        // 관리자 전용 메뉴
                         <>
                             <Link to="/admin/repair-shops" className="nav-main__link">정비소 승인 관리</Link>
                         </>
                     ) : (
-                        // 일반 사용자 메뉴
                         <>
                             <Link to="/map" className="nav-main__link">정비소 지도</Link>
                             {loginUser && (
                                 <>
                                     <Link to="/mypage" className="nav-main__link">마이페이지</Link>
                                     <Link to="/my-reservations" className="nav-main__link">내 예약</Link>
+                                    <Link to="/my-orders" className="nav-main__link">내 주문</Link>
                                     <Link to="/repair-history" className="nav-main__link">정비 이력</Link>
                                     <Link to="/ai" className="nav-main__link">AI 분석</Link>
                                     <Link to="/my-shop" className="nav-main__link">내 정비소</Link>
