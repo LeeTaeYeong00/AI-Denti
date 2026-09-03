@@ -128,13 +128,13 @@ export default function MyShopPage() {
                                     </button>
                                     <button
                                         className="btn btn-outline btn-sm"
-                                        onClick={() => navigate("/repair-items")}
+                                        onClick={() => navigate(`/repair-items?shopId=${shop.shopId}`)}
                                     >
                                         정비 항목 관리
                                     </button>
                                     <button
                                         className="btn btn-outline btn-sm"
-                                        onClick={() => navigate("/products")}
+                                        onClick={() => navigate(`/products?shopId=${shop.shopId}`)}
                                     >
                                         상품 관리
                                     </button>
