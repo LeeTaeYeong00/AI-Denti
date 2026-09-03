@@ -1,8 +1,9 @@
 import axios from 'axios'
 
-// 정비소를 즐겨찾기에 등록한다.
+// 정비소를 즐겨찾기 상태로 만든다.
+// 이미 등록된 상태여도 그대로 유지된다.
 export const addShopFavorite = (shopId) => {
-  return axios.post(
+  return axios.put(
     `/api/favorites/shops/${shopId}`,
     null,
     {
@@ -11,7 +12,8 @@ export const addShopFavorite = (shopId) => {
   )
 }
 
-// 정비소 즐겨찾기를 취소한다.
+// 정비소를 즐겨찾기 해제 상태로 만든다.
+// 이미 해제된 상태여도 정상 처리된다.
 export const removeShopFavorite = (shopId) => {
   return axios.delete(
     `/api/favorites/shops/${shopId}`,
@@ -31,7 +33,7 @@ export const getShopFavoriteStatus = (shopId) => {
   )
 }
 
-// 현재 사용자가 즐겨찾기한 정비소 목록을 조회한다.
+// 현재 로그인한 사용자가 즐겨찾기한 정비소 목록을 조회한다.
 export const getMyShopFavorites = () => {
   return axios.get(
     '/api/favorites/my',

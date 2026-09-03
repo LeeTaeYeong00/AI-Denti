@@ -9,7 +9,6 @@ import com.example.denti_back.favorite.dto.ShopFavoriteResponse;
 import com.example.denti_back.favorite.dto.ShopFavoriteStatusResponse;
 import com.example.denti_back.favorite.entity.ShopFavorite;
 import com.example.denti_back.favorite.repository.ShopFavoriteRepository;
-import com.example.denti_back.member.entity.User;
 import com.example.denti_back.member.repository.UserRepository;
 import com.example.denti_back.shop.entity.RepairShop;
 import com.example.denti_back.shop.repository.RepairShopRepository;
@@ -25,58 +24,21 @@ public class ShopFavoriteService {
     private final UserRepository userRepository;
     private final RepairShopRepository repairShopRepository;
 
-    // 현재 로그인한 사용자가 정비소를 즐겨찾기에 등록한다.
+    // 현재 로그인한 사용자가 정비소를 즐겨찾기 상태로 만든다.
+    // 이미 등록된 상태라면 추가로 저장하지 않고 현재 정보를 반환한다.
     @Transactional
     public ShopFavoriteResponse addFavorite(
             Long currentUserId,
             Long shopId
     ) {
 
-        // 같은 정비소를 중복으로 즐겨찾기할 수 없도록 확인한다.
-        if (shopFavoriteRepository
-                .existsByUser_UserIdAndShop_ShopId(
-                        currentUserId,
-                        shopId
-                )) {
+        validateCurrentUser(currentUserId);
+        validateShop(shopId);
 
-            throw new IllegalStateException(
-                    "이미 즐겨찾기에 등록된 정비소입니다."
-            );
-        }
-
-        User user = userRepository
-                .findById(currentUserId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "사용자를 찾을 수 없습니다."
-                        )
-                );
-
-        RepairShop shop = repairShopRepository
-                .findById(shopId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "정비소를 찾을 수 없습니다."
-                        )
-                );
-
-        ShopFavorite favorite = new ShopFavorite();
-
-        favorite.setUser(user);
-        favorite.setShop(shop);
-
-        ShopFavorite savedFavorite =
-                shopFavoriteRepository.save(favorite);
-
-        return toFavoriteResponse(savedFavorite);
-    }
-
-    // 현재 로그인한 사용자가 정비소 즐겨찾기를 취소한다.
-    @Transactional
-    public void removeFavorite(
-            Long currentUserId,
-            Long shopId
-    ) {
+        shopFavoriteRepository.insertFavoriteIfAbsent(
+                currentUserId,
+                shopId
+        );
 
         ShopFavorite favorite = shopFavoriteRepository
                 .findByUser_UserIdAndShop_ShopId(
@@ -84,12 +46,29 @@ public class ShopFavoriteService {
                         shopId
                 )
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "즐겨찾기 정보를 찾을 수 없습니다."
+                        new IllegalStateException(
+                                "즐겨찾기 정보를 확인할 수 없습니다."
                         )
                 );
 
-        shopFavoriteRepository.delete(favorite);
+        return toFavoriteResponse(favorite);
+    }
+
+    // 현재 로그인한 사용자가 정비소를 즐겨찾기 해제 상태로 만든다.
+    // 이미 해제된 상태여도 오류 없이 정상 처리한다.
+    @Transactional
+    public void removeFavorite(
+            Long currentUserId,
+            Long shopId
+    ) {
+
+        validateCurrentUser(currentUserId);
+
+        shopFavoriteRepository
+                .deleteByUser_UserIdAndShop_ShopId(
+                        currentUserId,
+                        shopId
+                );
     }
 
     // 현재 사용자가 해당 정비소를 즐겨찾기했는지 조회한다.
@@ -113,7 +92,7 @@ public class ShopFavoriteService {
         return response;
     }
 
-    // 현재 사용자가 즐겨찾기한 정비소 목록을 조회한다.
+    // 현재 로그인한 사용자가 즐겨찾기한 정비소 목록을 조회한다.
     public List<ShopFavoriteResponse> getMyFavorites(
             Long currentUserId
     ) {
@@ -125,6 +104,38 @@ public class ShopFavoriteService {
                 .stream()
                 .map(this::toFavoriteResponse)
                 .toList();
+    }
+
+    // 로그인 사용자 정보와 실제 사용자 존재 여부를 확인한다.
+    private void validateCurrentUser(
+            Long currentUserId
+    ) {
+
+        if (currentUserId == null) {
+            throw new IllegalStateException(
+                    "로그인 후 즐겨찾기를 이용할 수 있습니다."
+            );
+        }
+
+        if (!userRepository.existsById(currentUserId)) {
+            throw new IllegalArgumentException(
+                    "사용자를 찾을 수 없습니다."
+            );
+        }
+    }
+
+    // 정비소가 실제로 존재하는지 확인한다.
+    private void validateShop(
+            Long shopId
+    ) {
+
+        if (shopId == null ||
+                !repairShopRepository.existsById(shopId)) {
+
+            throw new IllegalArgumentException(
+                    "정비소를 찾을 수 없습니다."
+            );
+        }
     }
 
     // ShopFavorite 엔티티를 프론트에 전달할 DTO로 변환한다.

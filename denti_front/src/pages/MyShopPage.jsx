@@ -144,10 +144,27 @@ export default function MyShopPage() {
             </div>
 
             <div className="card">
-                <p style={{ fontSize: 14, marginBottom: 16 }}>승인된 정비소입니다. 예약 관리 대시보드로 이동하세요.</p>
-                <Link to="/shop-reservations">
-                    <button className="btn btn-primary btn-block">예약 관리 대시보드로 이동</button>
-                </Link>
+                <p style={{ fontSize: 14, marginBottom: 16 }}>
+                    승인된 정비소입니다. 예약과 리뷰를 관리할 수 있습니다.
+                </p>
+
+                <div style={{ display: "grid", gap: 10 }}>
+                    <Link
+                        to="/shop-reservations"
+                        className="btn btn-primary btn-block"
+                        style={{ textDecoration: "none" }}
+                    >
+                        예약 관리 대시보드로 이동
+                    </Link>
+
+                    <Link
+                        to="/my-shop/reviews"
+                        className="btn btn-outline btn-block"
+                        style={{ textDecoration: "none" }}
+                    >
+                        리뷰 및 답변 관리
+                    </Link>
+                </div>
             </div>
         </div>
     );

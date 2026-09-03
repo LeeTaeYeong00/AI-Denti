@@ -7,6 +7,7 @@ import {
 import {
     addReviewLike,
     deleteReview,
+    deleteReviewReply,
     getShopReviews,
     removeReviewLike,
 } from "../../api/reviewApi";
@@ -15,9 +16,13 @@ import { useAuth } from "../../context/AuthContext";
 
 import ReviewCard from "./ReviewCard";
 import ReviewForm from "./ReviewForm";
+import ReviewReplyForm from "./ReviewReplyForm";
 
 // 정비소 상세 화면에 표시할 리뷰 목록 컴포넌트이다.
-function ShopReviewSection({ shopId }) {
+function ShopReviewSection({
+    shopId,
+    replyManagement = false,
+}) {
     const { loginUser } = useAuth();
 
     // 화면에서 리뷰 작성자 여부를 확인할 때만 사용한다.
@@ -30,6 +35,11 @@ function ShopReviewSection({ shopId }) {
 
     const [editingReview, setEditingReview] =
         useState(null);
+
+    const [
+        editingReplyReviewId,
+        setEditingReplyReviewId,
+    ] = useState(null);
 
     const [page, setPage] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -81,13 +91,15 @@ function ShopReviewSection({ shopId }) {
         }
 
         const currentReview =
-                reviewData?.reviews?.find(
-                    (review) =>
-                        review.reviewId === reviewId
-                );
+            reviewData?.reviews?.find(
+                (review) =>
+                    review.reviewId === reviewId
+            );
 
         if (!currentReview) {
-            alert("리뷰 정보를 찾을 수 없습니다.");
+            alert(
+                "리뷰 정보를 찾을 수 없습니다."
+            );
             return;
         }
 
@@ -142,6 +154,54 @@ function ShopReviewSection({ shopId }) {
         await loadReviews();
     };
 
+    // 정비소 답변 등록 또는 수정이 완료되면
+    // 수정 폼을 닫고 리뷰 목록을 다시 조회한다.
+    const handleReplySuccess = async () => {
+        setEditingReplyReviewId(null);
+        await loadReviews();
+    };
+
+    // 정비소가 작성한 공식 답변을 삭제한다.
+    const handleReplyDelete = async (
+        reviewId
+    ) => {
+        if (
+            !window.confirm(
+                "정비소 답변을 삭제하시겠습니까?"
+            )
+        ) {
+            return;
+        }
+
+        try {
+            await deleteReviewReply(reviewId);
+
+            setEditingReplyReviewId(null);
+            await loadReviews();
+
+            alert(
+                "정비소 답변이 삭제되었습니다."
+            );
+        } catch (error) {
+            console.error(
+                "정비소 답변 삭제 실패:",
+                error
+            );
+
+            const responseMessage =
+                typeof error.response?.data ===
+                "string"
+                    ? error.response.data
+                    : error.response?.data
+                          ?.message;
+
+            alert(
+                responseMessage ||
+                    "정비소 답변 삭제에 실패했습니다."
+            );
+        }
+    };
+
     // 작성자 본인의 리뷰를 삭제한다.
     const handleDelete = async (reviewId) => {
         if (!loginUser) {
@@ -177,7 +237,9 @@ function ShopReviewSection({ shopId }) {
 
             setEditingReview(null);
 
-            alert("리뷰가 삭제되었습니다.");
+            alert(
+                "리뷰가 삭제되었습니다."
+            );
         } catch (error) {
             console.error(error);
 
@@ -284,23 +346,98 @@ function ShopReviewSection({ shopId }) {
                                         }
                                     />
                                 ) : (
-                                    <ReviewCard
-                                        review={
-                                            review
-                                        }
-                                        currentUserId={
-                                            currentUserId
-                                        }
-                                        onLike={
-                                            handleLike
-                                        }
-                                        onEdit={
-                                            setEditingReview
-                                        }
-                                        onDelete={
-                                            handleDelete
-                                        }
-                                    />
+                                    <>
+                                        <ReviewCard
+                                            review={
+                                                review
+                                            }
+                                            currentUserId={
+                                                currentUserId
+                                            }
+                                            onLike={
+                                                handleLike
+                                            }
+                                            onEdit={
+                                                setEditingReview
+                                            }
+                                            onDelete={
+                                                handleDelete
+                                            }
+                                        />
+
+                                        {replyManagement && (
+                                            <div
+                                                style={{
+                                                    marginBottom: 20,
+                                                }}
+                                            >
+                                                {review.reply ? (
+                                                    editingReplyReviewId ===
+                                                    review.reviewId ? (
+                                                        <ReviewReplyForm
+                                                            reviewId={
+                                                                review.reviewId
+                                                            }
+                                                            reply={
+                                                                review.reply
+                                                            }
+                                                            onSuccess={
+                                                                handleReplySuccess
+                                                            }
+                                                            onCancel={() =>
+                                                                setEditingReplyReviewId(
+                                                                    null
+                                                                )
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        <div
+                                                            style={{
+                                                                display:
+                                                                    "flex",
+                                                                justifyContent:
+                                                                    "flex-end",
+                                                                gap: 8,
+                                                            }}
+                                                        >
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-outline btn-sm"
+                                                                onClick={() =>
+                                                                    setEditingReplyReviewId(
+                                                                        review.reviewId
+                                                                    )
+                                                                }
+                                                            >
+                                                                답변 수정
+                                                            </button>
+
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-danger btn-sm"
+                                                                onClick={() =>
+                                                                    handleReplyDelete(
+                                                                        review.reviewId
+                                                                    )
+                                                                }
+                                                            >
+                                                                답변 삭제
+                                                            </button>
+                                                        </div>
+                                                    )
+                                                ) : (
+                                                    <ReviewReplyForm
+                                                        reviewId={
+                                                            review.reviewId
+                                                        }
+                                                        onSuccess={
+                                                            handleReplySuccess
+                                                        }
+                                                    />
+                                                )}
+                                            </div>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         )

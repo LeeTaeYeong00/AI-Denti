@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ShopReviewSection from "../components/review/ShopReviewSection";
+import FavoriteButton from "../components/favorite/FavoriteButton";
 import { getRepairShopHours } from "../api/repairShopHourAPI";
 import { getRepairShopByShopId } from "../api/repairShopAPI";
 import { getAvailableTimes, createReservation } from "../api/reservationAPI";
@@ -149,7 +150,18 @@ function RepairShopDetailPage() {
 
     return (
         <div>
-            <h1>{shop.shopName || "정비소"}</h1>
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 12,
+                }}
+            >
+                <h1>{shop.shopName || "정비소"}</h1>
+
+                <FavoriteButton shopId={shop.shopId} />
+            </div>
 
             <div>
                 <h2>정비소 정보</h2>

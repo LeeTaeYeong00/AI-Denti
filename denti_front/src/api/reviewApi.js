@@ -87,6 +87,24 @@ export const createReviewReply = (
     );
 };
 
+// 정비소 답변을 수정한다.
+export const updateReviewReply = (
+    reviewId,
+    data
+) => {
+    return api.put(
+        ENDPOINTS.REVIEW.REPLY(reviewId),
+        data
+    );
+};
+
+// 정비소 답변을 삭제한다.
+export const deleteReviewReply = (reviewId) => {
+    return api.delete(
+        ENDPOINTS.REVIEW.REPLY(reviewId)
+    );
+};
+
 // 리뷰에 이미지를 등록한다.
 export const uploadReviewImages = (
     reviewId,
