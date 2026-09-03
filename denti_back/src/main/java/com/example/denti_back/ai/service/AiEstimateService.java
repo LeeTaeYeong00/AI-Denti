@@ -46,6 +46,7 @@ public class AiEstimateService {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
+    // Flask 호출 (내부용)
     public Map<String, Object> requestAnalysis(MultipartFile image) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -63,36 +64,56 @@ public class AiEstimateService {
         return restTemplate.postForObject(aiServerUrl + "/analyze", requestEntity, Map.class);
     }
 
-    @Transactional
-    public AiAnalysisResponse analyzeAndSave(MultipartFile image, User user) throws IOException {
+    // 1단계: 분석만 하고 이미지는 임시 디스크에만 저장, DB에는 저장하지 않음
+    public AiAnalysisResponse analyzePreview(MultipartFile image) throws IOException {
         Map<String, Object> response = requestAnalysis(image);
 
         @SuppressWarnings("unchecked")
         Map<String, Object> details = (Map<String, Object>) response.get("details");
         int totalCost = ((Number) response.get("totalCost")).intValue();
 
+        // 이미지는 저장해두되, DB row는 아직 안 만듦 -> 임시 경로에 저장
+        String tempImagePath = saveImageToDisk(image, true);
+
+        List<AiAnalysisDetailResponse> detailResponses = details.keySet().stream()
+                .map(key -> {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> detailData = (Map<String, Object>) details.get(key);
+                    int pixelArea = ((Number) detailData.get("pixelArea")).intValue();
+                    return new AiAnalysisDetailResponse(
+                            mapToDamageType(key),
+                            pixelArea,
+                            ((Number) detailData.get("estimatedCost")).intValue(),
+                            calculatePercentage(pixelArea)
+                    );
+                })
+                .collect(Collectors.toList());
+
+        // analysisId는 아직 없으므로 null, createdAt도 null -> 프론트에서 "미저장 상태"로 판단
+        return new AiAnalysisResponse(null, totalCost, null, List.of(tempImagePath), detailResponses);
+    }
+
+    // 2단계: 저장 확정 -> 이때 실제로 DB에 저장하고, 임시 이미지를 정식 위치로 옮김
+    @Transactional
+    public AiAnalysisResponse confirmSave(User user, String tempImagePath, Integer totalCost, List<AiAnalysisDetailResponse> details) {
         AiAnalysis analysis = new AiAnalysis();
         analysis.setUser(user);
         analysis.setTotalCost(totalCost);
         aiAnalysisRepository.save(analysis);
 
-        String savedPath = saveImageToDisk(image);
+        // 임시 파일을 정식 이미지로 전환 (파일은 그대로 두고 DB row만 생성)
         AiAnalysisImage analysisImage = new AiAnalysisImage();
         analysisImage.setAnalysis(analysis);
-        analysisImage.setImageUrl(savedPath);
+        analysisImage.setImageUrl(tempImagePath);
         aiAnalysisImageRepository.save(analysisImage);
 
-        for (String key : details.keySet()) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> detailData = (Map<String, Object>) details.get(key);
-            int pixelArea = ((Number) detailData.get("pixelArea")).intValue();
-
+        for (AiAnalysisDetailResponse d : details) {
             AiAnalysisDetail detail = new AiAnalysisDetail();
             detail.setAnalysis(analysis);
-            detail.setDamageType(mapToDamageType(key));
-            detail.setPixelArea(pixelArea);
-            detail.setEstimatedCost(((Number) detailData.get("estimatedCost")).intValue());
-            detail.setDamagePercentage(calculatePercentage(pixelArea));
+            detail.setDamageType(d.getDamageType());
+            detail.setPixelArea(d.getPixelArea());
+            detail.setEstimatedCost(d.getEstimatedCost());
+            detail.setDamagePercentage(d.getDamagePercentage());
             aiAnalysisDetailRepository.save(detail);
         }
 
@@ -141,9 +162,10 @@ public class AiEstimateService {
         return Math.round((pixelArea / (double) TOTAL_PIXELS) * 1000) / 10.0;
     }
 
-    private String saveImageToDisk(MultipartFile image) throws IOException {
+    private String saveImageToDisk(MultipartFile image, boolean temporary) throws IOException {
         String extension = getExtension(image.getOriginalFilename());
-        String fileName = UUID.randomUUID() + extension;
+        String prefix = temporary ? "temp_" : "";
+        String fileName = prefix + UUID.randomUUID() + extension;
 
         File dir = new File(uploadDir);
         if (!dir.exists()) dir.mkdirs();

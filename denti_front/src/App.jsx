@@ -6,6 +6,9 @@ import ReviewWritePage from "./pages/review/ReviewWritePage";
 import MyReviewsPage from "./pages/review/MyReviewsPage";
 import ShopReviewManagementPage from "./pages/review/ShopReviewManagementPage";
 import MyFavoritesPage from "./pages/favorite/MyFavoritesPage";
+import OrderPage from "./pages/OrderPage";
+import OrderDetailPage from "./pages/OrderDetailPage";
+import MyOrderPage from "./pages/MyOrderPage";
 
 // Pages
 import Main from "./pages/Main";
@@ -24,7 +27,12 @@ import AiAnalysisDetailPage from "./pages/ai/AiAnalysisDetailPage";
 import MyPage from "./pages/MyPage";
 import MyShopPage from "./pages/MyShopPage";
 import RepairItemPage from "./pages/RepairItemPage";
+import RepairItemListPage from "./pages/RepairItemListPage";
+import ProductPage from "./pages/ProductPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
+import ProductListPage from "./pages/ProductListPage";
 import AdminShopApprovalPage from "./pages/AdminShopApprovalPage";
+import AdminRoute from "./components/AdminRoute";
 
 
 function App() {
@@ -80,6 +88,15 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <MyReservationPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/my-orders"
+                        element={
+                            <ProtectedRoute>
+                                <MyOrderPage />
                             </ProtectedRoute>
                         }
                     />
@@ -152,6 +169,7 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
+
                     <Route
                         path="/my-shop/reviews"
                         element={
@@ -168,12 +186,55 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
+
+                    <Route
+                        path="/repair-item-list"
+                        element={<RepairItemListPage />}
+                    />
+
+                    <Route
+                        path="/products"
+                        element={
+                            <ProtectedRoute>
+                                <ProductPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/products/:productId"
+                        element={<ProductDetailPage />}
+                    />
+
+                    <Route
+                        path="/products/:productId/order"
+                        element={
+                            <ProtectedRoute>
+                                <OrderPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/orders/:orderId"
+                        element={
+                            <ProtectedRoute>
+                                <OrderDetailPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/product-list"
+                        element={<ProductListPage />}
+                    />
+
                     <Route
                         path="/admin/repair-shops"
                         element={
-                            <ProtectedRoute>
+                            <AdminRoute>
                                 <AdminShopApprovalPage />
-                            </ProtectedRoute>
+                            </AdminRoute>
                         }
                     />
 

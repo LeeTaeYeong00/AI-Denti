@@ -3,6 +3,12 @@ import { ENDPOINTS, axiosConfig } from "./config";
 
 const api = axios.create(axiosConfig);
 
+// 모든 정비소의 활성화된 정비상품 조회
+export const getAllRepairItems = async () => {
+    const response = await api.get(ENDPOINTS.REPAIR_ITEM.ALL);
+    return response.data;
+};
+
 // 정비소별 활성화된 판매 품목 조회
 export const getRepairItemsByShop = async (shopId) => {
     const response = await api.get(

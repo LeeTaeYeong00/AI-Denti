@@ -9,6 +9,11 @@ export const analyzeImage = async (formData) => {
     return response.data;
 };
 
+export const confirmSaveAnalysis = async (data) => {
+    const response = await api.post("/api/ai/confirm-save", data);
+    return response.data;
+};
+
 export const getAiHistory = async () => {
     const response = await api.get(ENDPOINTS.AI.HISTORY);
     return response.data;

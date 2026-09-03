@@ -31,4 +31,9 @@ public class RepairShop {
 
     @Enumerated(EnumType.STRING)
     private ApprovalStatus approvalStatus;
+
+    private String businessDocUrl;
+
+    @Column(length = 500)
+    private String rejectReason;
 }

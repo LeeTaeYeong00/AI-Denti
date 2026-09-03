@@ -36,8 +36,15 @@ export const ENDPOINTS = {
     },
 
     REPAIR_ITEM: {
+        ALL: "/api/repair-items",
         BY_SHOP: (shopId) => `/api/repair-items/shop/${shopId}`,
         BY_ID: (itemId) => `/api/repair-items/${itemId}`,
+    },
+
+    PRODUCT: {
+        ALL: "/api/products",
+        BY_SHOP: (shopId) => `/api/products/shop/${shopId}`,
+        BY_ID: (productId) => `/api/products/${productId}`,
     },
 
     REPAIR_SHOP_HOUR: {
@@ -58,6 +65,13 @@ export const ENDPOINTS = {
         BY_USER: (userId) => `/api/reservations/user/${userId}`,
         BY_SHOP: (shopId) => `/api/reservations/shop/${shopId}`,
         AVAILABLE_TIMES: (shopId) => `/api/available-times/shop/${shopId}`,
+    },
+
+    ORDER: {
+        BASE: "/api/orders",
+        DETAIL: (orderId) => `/api/orders/${orderId}`,
+        MY: "/api/orders/my",
+        CANCEL: (orderId) => `/api/orders/${orderId}/cancel`,
     },
 
     RESERVATION_HISTORY: {
