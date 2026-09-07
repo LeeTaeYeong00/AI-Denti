@@ -25,5 +25,10 @@ public class AvailableTime {
 
     private LocalTime availableTime;
 
-    private boolean reserved;
+    private int capacity;       // 정원 (신규)
+    private int reservedCount;  // 현재 예약된 인원 (신규)
+
+    public boolean isFull() {
+        return reservedCount >= capacity;
+    }
 }

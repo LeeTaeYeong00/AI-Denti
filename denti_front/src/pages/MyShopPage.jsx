@@ -128,6 +128,18 @@ export default function MyShopPage() {
                                     </button>
                                     <button
                                         className="btn btn-outline btn-sm"
+                                        onClick={() => navigate(`/manage-available-times?shopId=${shop.shopId}`)}
+                                    >
+                                        예약 시간대 관리
+                                    </button>
+                                    <button
+                                        className="btn btn-outline btn-sm"
+                                        onClick={() => navigate(`/manage-shop-hours?shopId=${shop.shopId}`)}
+                                    >
+                                        영업시간 관리
+                                    </button>
+                                    <button
+                                        className="btn btn-outline btn-sm"
                                         onClick={() => navigate(`/repair-items?shopId=${shop.shopId}`)}
                                     >
                                         정비 항목 관리

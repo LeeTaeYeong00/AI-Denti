@@ -38,7 +38,7 @@ public class ReservationService {
     private final VehicleRepository vehicleRepository;
     private final ReservationHistoryRepository reservationHistoryRepository;
     private final RepairHistoryRepository repairHistoryRepository;
-    
+
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -64,8 +64,9 @@ public class ReservationService {
             );
         }
 
-        if (availableTime.isReserved()) {
-            throw new IllegalStateException("이미 예약된 시간입니다.");
+        // 정원이 다 찼는지 확인 (기존: availableTime.isReserved())
+        if (availableTime.isFull()) {
+            throw new IllegalStateException("해당 시간대는 예약이 마감되었습니다.");
         }
 
         if (!availableTime.getShop().getShopId()
@@ -115,7 +116,8 @@ public class ReservationService {
         reservation.setAvailableTime(availableTime);
         reservation.setStatus(ReservationStatus.PENDING);
 
-        availableTime.setReserved(true);
+        // 예약 인원 1명 증가 (기존: availableTime.setReserved(true))
+        availableTime.setReservedCount(availableTime.getReservedCount() + 1);
         availableTimeRepository.save(availableTime);
 
         Reservation savedReservation =
@@ -184,9 +186,9 @@ public class ReservationService {
 
         reservation.setStatus(ReservationStatus.CANCELLED);
 
+        // 예약 인원 1명 감소 (기존: availableTime.setReserved(false))
         AvailableTime availableTime = reservation.getAvailableTime();
-        availableTime.setReserved(false);
-
+        availableTime.setReservedCount(Math.max(0, availableTime.getReservedCount() - 1));
         availableTimeRepository.save(availableTime);
 
         Reservation savedReservation =
@@ -249,11 +251,11 @@ public class ReservationService {
 
         reservation.setStatus(status);
 
-        // 예약 거절 시 해당 시간 다시 예약 가능하도록 변경
+        // 예약 거절 시 해당 시간 인원 다시 감소 (기존: availableTime.setReserved(false))
         if (status == ReservationStatus.REJECTED) {
-        AvailableTime availableTime = reservation.getAvailableTime();
-        availableTime.setReserved(false);
-        availableTimeRepository.save(availableTime);
+            AvailableTime availableTime = reservation.getAvailableTime();
+            availableTime.setReservedCount(Math.max(0, availableTime.getReservedCount() - 1));
+            availableTimeRepository.save(availableTime);
         }
 
         Reservation savedReservation =

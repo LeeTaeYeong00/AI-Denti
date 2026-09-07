@@ -227,17 +227,17 @@ function RepairShopDetailPage() {
                                 type="button"
                                 className={`chip ${
                                     selectedTime?.availableTimeId === time.availableTimeId ? "chip--selected" : ""
-                                } ${time.reserved ? "chip--disabled" : ""}`}
-                                disabled={time.reserved}
+                                } ${time.full ? "chip--disabled" : ""}`}
+                                disabled={time.full}
                                 onClick={() => setSelectedTime(time)}
                             >
                                 {time.availableTime}
-                                {time.reserved && " (예약됨)"}
+                                {time.full && " (마감)"}
                             </button>
                         ))}
                     </div>
                 )}
-                
+
                 {selectedTime && (
                     <div style={{ marginTop: 24 }}>
                         <h3 style={{ marginBottom: 12 }}>예약할 차량 선택</h3>

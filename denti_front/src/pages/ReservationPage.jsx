@@ -104,13 +104,13 @@ function ReservationPage() {
                                     key={time.availableTimeId}
                                     type="button"
                                     className={`chip ${selectedTime === time.availableTimeId ? "chip--selected" : ""} ${
-                                        time.reserved ? "chip--disabled" : ""
+                                        time.full ? "chip--disabled" : ""
                                     }`}
-                                    disabled={time.reserved}
+                                    disabled={time.full}
                                     onClick={() => setSelectedTime(time.availableTimeId)}
                                 >
                                     {time.availableTime}
-                                    {time.reserved && " (예약됨)"}
+                                    {time.full && " (마감)"}
                                 </button>
                             ))}
                         </div>

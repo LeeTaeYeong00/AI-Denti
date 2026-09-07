@@ -2,7 +2,7 @@ export const SERVER_BASE_URL = "http://localhost:8080";
 
 export const axiosConfig = {
     baseURL: SERVER_BASE_URL,
-    withCredentials: true, // 세션 쿠키를 요청마다 자동으로 실어 보내기 위해 필수
+    withCredentials: true,
     headers: { "Content-Type": "application/json" },
 };
 
@@ -58,15 +58,6 @@ export const ENDPOINTS = {
         MY: "/api/repair-shops/my",
     },
 
-    RESERVATION: {
-        BASE: "/api/reservations",
-        DETAIL: (reservationId) => `/api/reservations/${reservationId}`,
-        STATUS: (reservationId) => `/api/reservations/${reservationId}/status`,
-        BY_USER: (userId) => `/api/reservations/user/${userId}`,
-        BY_SHOP: (shopId) => `/api/reservations/shop/${shopId}`,
-        AVAILABLE_TIMES: (shopId) => `/api/available-times/shop/${shopId}`,
-    },
-
     ORDER: {
         BASE: "/api/orders",
         DETAIL: (orderId) => `/api/orders/${orderId}`,
@@ -88,5 +79,15 @@ export const ENDPOINTS = {
         IMAGES: (reviewId) => `/api/reviews/${reviewId}/images`,
         IMAGE_DETAIL: (reviewImageId) => `/api/reviews/images/${reviewImageId}`,
         MY: "/api/reviews/my",
+    },
+
+    RESERVATION: {
+        BASE: "/api/reservations",
+        DETAIL: (reservationId) => `/api/reservations/${reservationId}`,
+        STATUS: (reservationId) => `/api/reservations/${reservationId}/status`,
+        BY_USER: (userId) => `/api/reservations/user/${userId}`,
+        BY_SHOP: (shopId) => `/api/reservations/shop/${shopId}`,
+        AVAILABLE_TIMES: (shopId) => `/api/available-times/shop/${shopId}`,
+        AVAILABLE_TIMES_BASE: "/api/available-times",
     },
 };
