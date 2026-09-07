@@ -56,3 +56,22 @@ export const getShopHistory = async (shopId) => {
     const response = await api.get(`${ENDPOINTS.REPAIR_SHOP.BASE}/${shopId}/history`);
     return response.data;
 };
+
+export const createAvailableTime = async (data) => {
+    const response = await api.post(ENDPOINTS.RESERVATION.AVAILABLE_TIMES_BASE, data);
+    return response.data;
+};
+
+export const createAvailableTimesBulk = async (data) => {
+    const response = await api.post(`${ENDPOINTS.RESERVATION.AVAILABLE_TIMES_BASE}/bulk`, data);
+    return response.data;
+};
+
+export const updateAvailableTimeCapacity = async (availableTimeId, capacity) => {
+    const response = await api.put(`${ENDPOINTS.RESERVATION.AVAILABLE_TIMES_BASE}/${availableTimeId}`, { capacity });
+    return response.data;
+};
+
+export const deleteAvailableTime = async (availableTimeId) => {
+    await api.delete(`${ENDPOINTS.RESERVATION.AVAILABLE_TIMES_BASE}/${availableTimeId}`);
+};

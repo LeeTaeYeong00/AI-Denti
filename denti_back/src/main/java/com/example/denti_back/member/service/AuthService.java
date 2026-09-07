@@ -4,6 +4,7 @@ import com.example.denti_back.member.dto.SignupRequest;
 import com.example.denti_back.member.entity.User;
 import com.example.denti_back.member.enums.Provider;
 import com.example.denti_back.member.enums.Role;
+import com.example.denti_back.member.enums.UserStatus;
 import com.example.denti_back.member.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,6 +35,7 @@ public class AuthService {
         user.setNickName(request.getNickName());
         user.setRole(Role.GENERAL);
         user.setProvider(Provider.LOCAL);
+        user.setStatus(UserStatus.ACTIVE);
 
         userRepository.save(user);
     }

@@ -20,14 +20,10 @@ export default function Login() {
             await login(loginData);
             const user = await getLoginUser();
             setLoginUser(user);
-
-            if (user?.role === "ADMIN") {
-                navigate("/admin/repair-shops");
-            } else {
-                navigate("/");
-            }
+            navigate("/");
         } catch (err) {
-            setError("아이디 또는 비밀번호가 올바르지 않습니다.");
+            const message = err.response?.data || "아이디 또는 비밀번호가 올바르지 않습니다.";
+            setError(message);
         }
     };
 

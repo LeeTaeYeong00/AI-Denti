@@ -44,3 +44,26 @@ export const updateReservationStatus = async (reservationId, status) => {
 
     return response.data;
 };
+
+// 예약 가능 시간 개별 등록 (사장님용)
+export const createAvailableTime = async (data) => {
+    const response = await api.post(ENDPOINTS.RESERVATION.AVAILABLE_TIMES_BASE, data);
+    return response.data;
+};
+
+// 예약 가능 시간 자동 생성 (사장님용)
+export const createAvailableTimesBulk = async (data) => {
+    const response = await api.post(`${ENDPOINTS.RESERVATION.AVAILABLE_TIMES_BASE}/bulk`, data);
+    return response.data;
+};
+
+// 예약 가능 시간 정원 수정 (사장님용)
+export const updateAvailableTimeCapacity = async (availableTimeId, capacity) => {
+    const response = await api.put(`${ENDPOINTS.RESERVATION.AVAILABLE_TIMES_BASE}/${availableTimeId}`, { capacity });
+    return response.data;
+};
+
+// 예약 가능 시간 삭제 (사장님용)
+export const deleteAvailableTime = async (availableTimeId) => {
+    await api.delete(`${ENDPOINTS.RESERVATION.AVAILABLE_TIMES_BASE}/${availableTimeId}`);
+};

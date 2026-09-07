@@ -2,6 +2,8 @@ package com.example.denti_back.member.entity;
 
 import com.example.denti_back.member.enums.Provider;
 import com.example.denti_back.member.enums.Role;
+import com.example.denti_back.member.enums.UserStatus;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,4 +30,7 @@ public class User {
     private Provider provider;
 
     private String providerId;
+
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
 }
