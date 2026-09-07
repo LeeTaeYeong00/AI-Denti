@@ -5,6 +5,7 @@ import {
     CalendarIcon,
     FileIcon,
     HistoryIcon,
+    HeartIcon,
     UserIcon,
 } from "../components/icons";
 
@@ -13,6 +14,8 @@ const MENU = [
     { icon: CalendarIcon, label: "내 예약 내역", desc: "예약 현황 확인하기", to: "/my-reservations", tint: "success" },
     { icon: FileIcon, label: "정비 이력", desc: "지난 정비 기록 보기", to: "/repair-history", tint: "pending" },
     { icon: HistoryIcon, label: "AI 분석 이력", desc: "지난 분석 결과 다시보기", to: "/ai/history", tint: "danger" },
+    { icon: FileIcon, label: "내 리뷰", desc: "작성한 리뷰 확인 및 관리", to: "/my-reviews", tint: "info" },
+    { icon: HeartIcon, label: "내 즐겨찾기", desc: "저장한 정비소 확인 및 관리", to: "/my-favorites", tint: "success" },
 ];
 
 export default function MyPage() {
