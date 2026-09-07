@@ -3,6 +3,9 @@ import { AuthProvider } from "./context/AuthContext";
 import NavBar from "./components/NavBar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ReviewWritePage from "./pages/review/ReviewWritePage";
+import MyReviewsPage from "./pages/review/MyReviewsPage";
+import ShopReviewManagementPage from "./pages/review/ShopReviewManagementPage";
+import MyFavoritesPage from "./pages/favorite/MyFavoritesPage";
 import OrderPage from "./pages/OrderPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import MyOrderPage from "./pages/MyOrderPage";
@@ -141,6 +144,24 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
+                    
+                    <Route
+                        path="/my-reviews"
+                        element={
+                            <ProtectedRoute>
+                                <MyReviewsPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/my-favorites"
+                        element={
+                            <ProtectedRoute>
+                                <MyFavoritesPage />
+                            </ProtectedRoute>
+                        }
+                    />
 
                     <Route
                         path="/my-shop"
@@ -151,6 +172,14 @@ function App() {
                         }
                     />
 
+                    <Route
+                        path="/my-shop/reviews"
+                        element={
+                            <ProtectedRoute>
+                                <ShopReviewManagementPage />
+                            </ProtectedRoute>
+                        }
+                    />
                     <Route
                         path="/repair-items"
                         element={

@@ -826,3 +826,129 @@
     padding: 32px 16px 60px;
   }
 }
+
+/* ---------- Favorite button ---------- */
+.favorite-btn {
+  min-width: 148px;
+  border-radius: 999px;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.favorite-btn__icon {
+  font-size: 17px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.favorite-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.favorite-btn:hover:not(:disabled) .favorite-btn__icon {
+  transform: scale(1.15);
+}
+
+/* 즐겨찾기 등록 전 */
+.favorite-btn:not(.favorite-btn--active):hover:not(:disabled) {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+/* 즐겨찾기 등록 후 */
+.favorite-btn--active {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+.favorite-btn--active:hover:not(:disabled) {
+  color: #fff;
+  border-color: var(--color-danger);
+  background: var(--color-danger);
+}
+
+/* ---------- Favorite shop list ---------- */
+.favorite-section__count {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-ink-soft);
+}
+
+.favorite-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.favorite-grid .card + .card {
+  margin-top: 0;
+}
+
+.favorite-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 230px;
+}
+
+.favorite-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.favorite-card__title {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.favorite-card__body {
+  flex: 1;
+}
+
+.favorite-card__phone {
+  margin: 0 0 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-ink-soft);
+}
+
+.favorite-card__description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-ink-soft);
+}
+
+.favorite-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.favorite-section .form-error {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .favorite-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .favorite-card {
+    min-height: auto;
+  }
+
+  .favorite-card__actions .btn {
+    flex: 1;
+  }
+}

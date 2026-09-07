@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
     getMyRepairShops,
@@ -138,6 +138,17 @@ export default function MyShopPage() {
                                     >
                                         상품 관리
                                     </button>
+                                    
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline btn-sm"
+                                        onClick={() =>
+                                            navigate(`/my-shop/reviews?shopId=${shop.shopId}`)
+                                        }
+                                    >
+                                        리뷰 및 답변 관리
+                                    </button>
+
                                     <button className="btn btn-danger btn-sm" onClick={() => handleDelete(shop.shopId)}>
                                         정비소 삭제
                                     </button>

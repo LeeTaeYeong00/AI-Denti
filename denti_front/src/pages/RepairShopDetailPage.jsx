@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ShopReviewSection from "../components/review/ShopReviewSection";
-import MyReviewSection from "../components/review/MyReviewSection";
+import FavoriteButton from "../components/favorite/FavoriteButton";
 import { getRepairShopHours } from "../api/repairShopHourAPI";
 import { getAvailableTimes, createReservation } from "../api/reservationAPI";
 import { getMyVehicles, createVehicle } from "../api/vehicleAPI";
@@ -162,11 +162,26 @@ function RepairShopDetailPage() {
     }
 
     return (
-        <div className="page page--wide">
-            <div className="page-header">
-                <span className="eyebrow">REPAIR SHOP</span>
-                <h1 style={{ fontSize: 30 }}>{shop.shopName || "정비소"}</h1>
-                <p style={{ marginTop: 6 }}>{shop.address}</p>
+        <div>
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 12,
+                }}
+            >
+                <h1>{shop.shopName || "정비소"}</h1>
+
+                <FavoriteButton shopId={shop.shopId} />
+            </div>
+
+            <div>
+                <h2>정비소 정보</h2>
+
+                <p>주소: {shop.address}</p>
+                <p>위도: {shop.latitude}</p>
+                <p>경도: {shop.longitude}</p>
             </div>
 
             <div className="card">
@@ -326,12 +341,7 @@ function RepairShopDetailPage() {
             </div>
 
             <div className="card">
-                <ShopReviewSection shopId={shop.shopId} currentUserId={loginUser?.userId} />
-            </div>
-
-            <div className="card">
-                <h2 style={{ marginBottom: 16 }}>내 리뷰</h2>
-                <MyReviewSection currentUserId={loginUser?.userId} />
+                <ShopReviewSection shopId={shop.shopId} />
             </div>
         </div>
     );
