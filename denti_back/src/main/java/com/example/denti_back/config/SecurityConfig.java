@@ -34,6 +34,20 @@ public class SecurityConfig {
 
                 .requestMatchers("/uploads/**").permitAll()
 
+                // 리뷰 관련 조회
+                // 내 리뷰 조회는 로그인한 사용자만 가능
+                .requestMatchers(
+                    org.springframework.http.HttpMethod.GET,
+                    "/api/reviews/my"
+                ).authenticated()
+
+                // 리뷰 한 건과 정비소별 리뷰는 비로그인 사용자도 조회 가능
+                .requestMatchers(
+                    org.springframework.http.HttpMethod.GET,
+                    "/api/reviews/*",
+                    "/api/reviews/shops/**"
+                ).permitAll()
+
                 // 정비소 공개 정보
                 .requestMatchers(
                     "/api/repair-shop-addresses/**",

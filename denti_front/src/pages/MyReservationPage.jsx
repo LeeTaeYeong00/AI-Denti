@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { getMyReservations, cancelReservation } from "../api/reservationAPI";
 import { getReservationHistories } from "../api/reservationHistoryAPI";
+import { useNavigate } from "react-router-dom";
+import { getMyReviewedReservationIds } from "../api/reviewApi";
 
 const STATUS_LABEL = {
     PENDING: "대기중",
@@ -19,10 +21,12 @@ function StatusBadge({ status }) {
 
 function MyReservationPage() {
     const { loginUser } = useAuth();
+    const navigate = useNavigate();
 
     const [reservations, setReservations] = useState([]);
     const [histories, setHistories] = useState({});
     const [openHistory, setOpenHistory] = useState(null);
+    const [reviewedReservationIds, setReviewedReservationIds] = useState(null);
 
     useEffect(() => {
         if (!loginUser) return;
@@ -40,6 +44,29 @@ function MyReservationPage() {
         };
 
         loadMyReservations();
+    }, [loginUser]);
+
+    // 현재 사용자가 리뷰를 작성한 예약 번호를 조회한다.
+    useEffect(() => {
+        if (!loginUser) {
+            setReviewedReservationIds(null);
+            return;
+        }
+
+        const loadReviewedReservationIds = async () => {
+            try {
+                const response = await getMyReviewedReservationIds();
+
+                setReviewedReservationIds(
+                    new Set(response.data.map(Number))
+                );
+            } catch (error) {
+                console.error("리뷰 작성 여부 조회 실패:", error);
+                setReviewedReservationIds(null);
+            }
+        };
+
+        loadReviewedReservationIds();
     }, [loginUser]);
 
     const handleCancelReservation = async (reservationId) => {
@@ -144,13 +171,36 @@ function MyReservationPage() {
                                     className="btn btn-danger btn-sm"
                                     onClick={() => handleCancelReservation(reservation.reservationId)}
                                 >
-                                    예약 취소
-                                </button>
-                            )}
+                                예약 취소 
+                                </button> 
+                            )} 
 
-                            <button
-                                className="btn btn-outline btn-sm"
-                                onClick={() => loadReservationHistory(reservation.reservationId)}
+                            {/* 완료된 예약에만 리뷰 버튼을 표시한다. */} 
+                            {reservation.status === "COMPLETED" && 
+                                reviewedReservationIds !== null && 
+                                (reviewedReservationIds.has(Number(reservation.reservationId)) ? ( 
+                                    <button 
+                                        type="button" 
+                                        className="btn btn-outline btn-sm" 
+                                        disabled 
+                                    > 
+                                        리뷰 작성 완료 
+                                    </button> 
+                                ) : ( 
+                                    <button 
+                                        type="button" 
+                                        className="btn btn-primary btn-sm" 
+                                        onClick={() => 
+                                            navigate(`/reviews/write/${reservation.reservationId}`) 
+                                        } 
+                                    > 
+                                        리뷰 작성 
+                                    </button> 
+                                ))} 
+ 
+                            <button 
+                                className="btn btn-outline btn-sm" 
+                                onClick={() => loadReservationHistory(reservation.reservationId)} 
                             >
                                 {openHistory === reservation.reservationId
                                     ? "상태 이력 닫기"

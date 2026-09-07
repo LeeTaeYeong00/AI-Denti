@@ -2,15 +2,16 @@ package com.example.denti_back.review.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.denti_back.member.security.CustomUserDetails;
 import com.example.denti_back.review.dto.request.ReviewReplyRequest;
 import com.example.denti_back.review.dto.response.ReviewReplyResponse;
 import com.example.denti_back.review.service.ReviewReplyService;
@@ -26,37 +27,51 @@ public class ReviewReplyController {
     private final ReviewReplyService reviewReplyService;
 
     // 해당 리뷰가 작성된 정비소의 소유자가 공식 답변을 등록한다.
-    // 현재는 로그인 기능이 완성되지 않았으므로
-    // X-User-Id 헤더를 통해 정비소 소유자의 회원 번호를 전달받는다.
     @PostMapping
     public ResponseEntity<ReviewReplyResponse> createReply(
-            @PathVariable Long reviewId,
-            @RequestHeader("X-User-Id") Long currentUserId,
-            @RequestBody ReviewReplyRequest request) {
+            @PathVariable
+            Long reviewId,
+            @AuthenticationPrincipal
+            CustomUserDetails userDetails,
+            @RequestBody
+            ReviewReplyRequest request
+    ) {
+
+        Long currentUserId =
+                getCurrentUserId(userDetails);
 
         ReviewReplyResponse response =
                 reviewReplyService.createReply(
                         reviewId,
                         currentUserId,
-                        request);
+                        request
+                );
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
 
-    // 정비소 소유자가 기존 공식 답변의 내용을 수정한다.
+    // 정비소 소유자가 기존 공식 답변을 수정한다.
     @PutMapping
     public ResponseEntity<ReviewReplyResponse> updateReply(
-            @PathVariable Long reviewId,
-            @RequestHeader("X-User-Id") Long currentUserId,
-            @RequestBody ReviewReplyRequest request) {
+            @PathVariable
+            Long reviewId,
+            @AuthenticationPrincipal
+            CustomUserDetails userDetails,
+            @RequestBody
+            ReviewReplyRequest request
+    ) {
+
+        Long currentUserId =
+                getCurrentUserId(userDetails);
 
         ReviewReplyResponse response =
                 reviewReplyService.updateReply(
                         reviewId,
                         currentUserId,
-                        request);
+                        request
+                );
 
         return ResponseEntity.ok(response);
     }
@@ -64,13 +79,36 @@ public class ReviewReplyController {
     // 정비소 소유자가 해당 리뷰에 작성한 공식 답변을 삭제한다.
     @DeleteMapping
     public ResponseEntity<Void> deleteReply(
-            @PathVariable Long reviewId,
-            @RequestHeader("X-User-Id") Long currentUserId) {
+            @PathVariable
+            Long reviewId,
+            @AuthenticationPrincipal
+            CustomUserDetails userDetails
+    ) {
+
+        Long currentUserId =
+                getCurrentUserId(userDetails);
 
         reviewReplyService.deleteReply(
                 reviewId,
-                currentUserId);
+                currentUserId
+        );
 
         return ResponseEntity.noContent().build();
+    }
+
+    // 로그인 세션에서 현재 사용자의 번호를 가져온다.
+    private Long getCurrentUserId(
+            CustomUserDetails userDetails
+    ) {
+
+        if (userDetails == null) {
+            throw new IllegalStateException(
+                    "로그인 후 이용할 수 있습니다."
+            );
+        }
+
+        return userDetails
+                .getUser()
+                .getUserId();
     }
 }
