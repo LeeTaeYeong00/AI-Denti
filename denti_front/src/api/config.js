@@ -1,4 +1,5 @@
-export const SERVER_BASE_URL = "http://localhost:8080";
+export const SERVER_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 export const axiosConfig = {
     baseURL: SERVER_BASE_URL,
