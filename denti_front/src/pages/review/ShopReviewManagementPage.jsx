@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
-import { getMyRepairShop } from "../../api/repairShopAPI";
+import { getMyRepairShops } from "../../api/repairShopAPI";
 import ShopReviewSection from "../../components/review/ShopReviewSection";
 
 // 정비소 소유자가 자신의 정비소에 작성된 리뷰를 관리하는 페이지이다.
 function ShopReviewManagementPage() {
+    const [searchParams] = useSearchParams();
+    const shopIdParam = searchParams.get("shopId");
+
     const [shop, setShop] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -15,9 +19,17 @@ function ShopReviewManagementPage() {
                 setLoading(true);
                 setError("");
 
-                const data = await getMyRepairShop();
+                const data = await getMyRepairShops();
 
-                setShop(data);
+                const approvedShop = data.find(
+                    (item) => item.approvalStatus === "APPROVED" &&
+                    (
+                        !shopIdParam ||
+                        String(item.shopId) === shopIdParam
+                    )  
+                );
+
+                setShop(approvedShop ?? null);
             } catch (error) {
                 console.error(
                     "내 정비소 조회 실패:",
@@ -33,7 +45,7 @@ function ShopReviewManagementPage() {
         };
 
         loadMyShop();
-    }, []);
+    }, [shopIdParam]);
 
     if (loading) {
         return (
