@@ -49,7 +49,9 @@ export default function NavBar() {
                     {isAdmin ? (
                         <>
                             <Link to="/admin/repair-shops" className="nav-main__link">정비소 승인 관리</Link>
+                            <Link to="/admin/users" className="nav-main__link">회원 관리</Link>
                         </>
+
                     ) : (
                         <>
                             <Link to="/map" className="nav-main__link">정비소 지도</Link>

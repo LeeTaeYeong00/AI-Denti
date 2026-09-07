@@ -30,6 +30,8 @@ import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductListPage from "./pages/ProductListPage";
 import AdminShopApprovalPage from "./pages/AdminShopApprovalPage";
 import AdminRoute from "./components/AdminRoute";
+import AdminUserPage from "./pages/AdminUserPage";
+
 
 
 function App() {
@@ -208,7 +210,14 @@ function App() {
                             </AdminRoute>
                         }
                     />
-
+                    <Route
+                        path="/admin/users"
+                        element={
+                            <AdminRoute>
+                                <AdminUserPage />
+                            </AdminRoute>
+                        }
+                    />
                     {/* 팀원들이 각자 도메인 라우트를 여기에 한 줄씩 추가 */}
                 </Routes>
             </BrowserRouter>
