@@ -1,0 +1,38 @@
+name: AI-Denti CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build Backend
+        working-directory: denti_back
+        run: ./mvnw clean package -DskipTests
+
+      - name: Build Frontend
+        working-directory: denti_front
+        run: |
+          npm ci
+          npm run build
