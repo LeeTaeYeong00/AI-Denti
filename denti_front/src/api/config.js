@@ -1,4 +1,4 @@
-export const SERVER_BASE_URL = "http://localhost:8080";
+export const SERVER_BASE_URL = "http://43.200.140.195:8080";
 
 export const axiosConfig = {
     baseURL: SERVER_BASE_URL,
