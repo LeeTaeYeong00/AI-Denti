@@ -14,7 +14,7 @@ public class TestController {
     @GetMapping("/health")
     public Map<String, String> healthCheck() {
         Map<String, String> response = new HashMap<>();
-        response.put("status", "ok"); // setStatus -> put 으로 수정
+        response.put("status", "ok");
         response.put("message", "AI-Denti 백엔드 서버가 정상 작동 중입니다.");
         return response;
     }
