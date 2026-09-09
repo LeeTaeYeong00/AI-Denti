@@ -1,0 +1,226 @@
+name: AI-Denti CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    name: Build Frontend & Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Backend
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build Backend
+        working-directory: denti_back
+        run: |
+          chmod +x mvnw
+          ./mvnw clean package -DskipTests
+
+      # Frontend
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: denti_front/package-lock.json
+
+      - name: Build Frontend
+        working-directory: denti_front
+        run: |
+          npm ci
+          npm run build
+
+      # Build 결과 저장
+      - name: Upload Backend Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build
+          path: denti_back/target/*.jar
+
+      - name: Upload Frontend Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: denti_front/dist
+
+      - name: Upload Backend Dockerfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-dockerfile
+          path: denti_back/Dockerfile
+
+      - name: Upload Frontend Dockerfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dockerfile
+          path: denti_front/Dockerfile
+
+      - name: Upload Nginx Config
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-nginx
+          path: denti_front/nginx.conf
+
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    needs: build
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-northeast-2
+
+      - name: Download Backend Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build
+          path: deploy/backend
+
+      - name: Download Frontend Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: deploy/frontend/dist
+
+      - name: Download Backend Dockerfile
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-dockerfile
+          path: deploy/backend
+
+      - name: Download Frontend Dockerfile
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dockerfile
+          path: deploy/frontend
+
+      - name: Download Nginx Config
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-nginx
+          path: deploy/frontend
+
+      # AWS Secrets Manager에서 SSH 개인키 가져오기
+      - name: Get SSH key from Secrets Manager
+        run: |
+          aws secretsmanager get-secret-value \
+            --secret-id "${{ secrets.AWS_SSH_SECRET_ARN }}" \
+            --query SecretString \
+            --output text > secret.json
+
+          jq -r '.private_key' secret.json > deploy_key
+          chmod 600 deploy_key
+
+      - name: Add EC2 to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+
+      # EC2 배포 디렉터리 생성
+      - name: Create deployment directory
+        run: |
+          ssh -i deploy_key \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "mkdir -p ~/ai-denti-deploy/backend ~/ai-denti-deploy/frontend"
+
+      # Backend 파일 전송
+      - name: Copy Backend
+        run: |
+          scp -i deploy_key \
+            deploy/backend/*.jar \
+            deploy/backend/Dockerfile \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/ai-denti-deploy/backend/
+
+      # Frontend 파일 전송
+      - name: Copy Frontend
+        run: |
+          scp -i deploy_key \
+            deploy/frontend/Dockerfile \
+            deploy/frontend/nginx.conf \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/ai-denti-deploy/frontend/
+
+          scp -i deploy_key \
+            -r deploy/frontend/dist \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/ai-denti-deploy/frontend/
+
+      # Backend Docker 배포
+      - name: Deploy Backend
+        run: |
+          ssh -i deploy_key \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+
+          cd ~/ai-denti-deploy/backend
+
+          docker build \
+            -t denti-api:${{ github.sha }} \
+            .
+
+          docker stop denti-api || true
+          docker rm denti-api || true
+
+          docker run -d \
+            --name denti-api \
+            --restart unless-stopped \
+            -p 8080:8080 \
+            denti-api:${{ github.sha }}
+
+          EOF
+
+      # Frontend Docker 배포
+      - name: Deploy Frontend
+        run: |
+          ssh -i deploy_key \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+
+          cd ~/ai-denti-deploy/frontend
+
+          docker build \
+            -t denti-web:${{ github.sha }} \
+            .
+
+          docker stop denti-web || true
+          docker rm denti-web || true
+
+          docker run -d \
+            --name denti-web \
+            --restart unless-stopped \
+            -p 80:80 \
+            denti-web:${{ github.sha }}
+
+          EOF
+
+      # 사용하지 않는 dangling 이미지 정리
+      - name: Cleanup Docker images
+        run: |
+          ssh -i deploy_key \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "docker image prune -f"
+
+      - name: Remove temporary SSH key
+        if: always()
+        run: |
+          rm -f deploy_key secret.json
