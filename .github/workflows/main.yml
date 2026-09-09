@@ -163,8 +163,15 @@ jobs:
       # Backend 파일 전송
       - name: Copy Backend
         run: |
+          ssh -i deploy_key \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "mkdir -p ~/ai-denti-deploy/backend/target"
+            
           scp -i deploy_key \
             deploy/backend/target/*.jar \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/ai-denti-deploy/backend/target/
+
+          scp -i deploy_key \
             deploy/backend/Dockerfile \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/ai-denti-deploy/backend/
 
