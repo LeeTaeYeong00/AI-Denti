@@ -143,8 +143,10 @@ jobs:
             --query SecretString \
             --output text > secret.json
 
-          jq -r '.private_key' secret.json > deploy_key
+          jq -r '.private_key' secret.json | sed 's/\\n/\n/g' > deploy_key
           chmod 600 deploy_key
+
+          ssh-keygen -y -f deploy_key > /dev/null
 
       - name: Add EC2 to known_hosts
         run: |
