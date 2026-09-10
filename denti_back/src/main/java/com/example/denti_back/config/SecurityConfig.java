@@ -34,6 +34,13 @@ public class SecurityConfig {
 
                 .requestMatchers("/uploads/**").permitAll()
 
+                // 자유게시판 목록, 상세, 댓글 및 좋아요 상태 조회는 공개한다.
+                .requestMatchers(
+                    org.springframework.http.HttpMethod.GET,
+                    "/api/community/posts",
+                    "/api/community/posts/**"
+                ).permitAll()
+
                 // 리뷰 관련 조회
                 // 내 리뷰 조회는 로그인한 사용자만 가능
                 .requestMatchers(

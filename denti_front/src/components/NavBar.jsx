@@ -55,6 +55,7 @@ export default function NavBar() {
                     ) : (
                         <>
                             <Link to="/map" className="nav-main__link">정비소 지도</Link>
+                            <Link to="/community" className="nav-main__link">자유게시판</Link>
                             {loginUser && (
                                 <>
                                     <Link to="/mypage" className="nav-main__link">마이페이지</Link>
@@ -63,6 +64,7 @@ export default function NavBar() {
                                     <Link to="/repair-history" className="nav-main__link">정비 이력</Link>
                                     <Link to="/ai" className="nav-main__link">AI 분석</Link>
                                     <Link to="/my-shop" className="nav-main__link">내 정비소</Link>
+                                    <Link to="/community" className="nav-main__link">자유게시판</Link>
                                 </>
                             )}
                         </>

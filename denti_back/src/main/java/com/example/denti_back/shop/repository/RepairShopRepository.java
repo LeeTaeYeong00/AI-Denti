@@ -12,4 +12,8 @@ public interface RepairShopRepository extends JpaRepository<RepairShop, Long> {
     List<RepairShop> findByOwner(User owner);
     Optional<RepairShop> findByOwnerAndApprovalStatus(User owner, ApprovalStatus status);
     List<RepairShop> findByApprovalStatus(ApprovalStatus approvalStatus);
+    List<RepairShop> findByOwner_UserIdAndApprovalStatusOrderByShopIdAsc(
+        Long ownerId,
+        ApprovalStatus approvalStatus
+    );
 }
