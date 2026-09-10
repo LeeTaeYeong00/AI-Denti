@@ -45,6 +45,8 @@ jobs:
 
       - name: Build Frontend
         working-directory: denti_front
+        env:
+          VITE_KAKAO_API_KEY: ${{ secrets.VITE_KAKAO_API_KEY }}
         run: |
           npm ci
           npm run build
