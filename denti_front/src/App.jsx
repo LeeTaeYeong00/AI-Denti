@@ -3,6 +3,9 @@ import { AuthProvider } from "./context/AuthContext";
 import NavBar from "./components/NavBar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ReviewWritePage from "./pages/review/ReviewWritePage";
+import CommunityListPage from "./pages/community/CommunityListPage";
+import CommunityPostDetailPage from "./pages/community/CommunityPostDetailPage";
+import CommunityPostFormPage from "./pages/community/CommunityPostFormPage";
 import MyReviewsPage from "./pages/review/MyReviewsPage";
 import ShopReviewManagementPage from "./pages/review/ShopReviewManagementPage";
 import MyFavoritesPage from "./pages/favorite/MyFavoritesPage";
@@ -57,6 +60,35 @@ function App() {
 
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
+
+                    {/* 자유게시판 */}
+                    <Route
+                        path="/community"
+                        element={<CommunityListPage />}
+                    />
+
+                    <Route
+                        path="/community/write"
+                        element={
+                            <ProtectedRoute>
+                                <CommunityPostFormPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/community/:postId/edit"
+                        element={
+                            <ProtectedRoute>
+                                <CommunityPostFormPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/community/:postId"
+                        element={<CommunityPostDetailPage />}
+                    />
 
                     <Route
                         path="/ai/history"
