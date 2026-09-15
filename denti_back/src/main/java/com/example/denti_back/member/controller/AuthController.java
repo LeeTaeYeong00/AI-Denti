@@ -1,11 +1,13 @@
 package com.example.denti_back.member.controller;
 
 import com.example.denti_back.member.dto.ChangePasswordRequestDto;
+import com.example.denti_back.member.dto.CompleteProfileRequestDto;
 import com.example.denti_back.member.dto.LoginRequest;
 import com.example.denti_back.member.dto.LoginUserResponse;
 import com.example.denti_back.member.dto.SignupRequest;
 import com.example.denti_back.member.dto.UpdateProfileRequestDto;
 import com.example.denti_back.member.repository.UserRepository;
+import com.example.denti_back.member.security.CustomOAuth2User;
 import com.example.denti_back.member.security.CustomUserDetails;
 import com.example.denti_back.member.entity.User;
 import com.example.denti_back.member.service.AuthService;
@@ -82,18 +84,13 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<LoginUserResponse> getLoginUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = getCurrentUser();
 
-        boolean isAnonymous = authentication == null
-                || !authentication.isAuthenticated()
-                || !(authentication.getPrincipal() instanceof CustomUserDetails);
-
-        if (isAnonymous) {
+        if (user == null) {
             return ResponseEntity.ok(null);
         }
 
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        var user = userDetails.getUser();
+        boolean needsAdditionalInfo = (user.getNickName() == null || user.getEmail() == null);
 
         return ResponseEntity.ok(new LoginUserResponse(
                 user.getUserId(),
@@ -101,8 +98,25 @@ public class AuthController {
                 user.getName(),
                 user.getEmail(),
                 user.getNickName(),
-                user.getRole().name()
+                user.getRole().name(),
+                needsAdditionalInfo,
+                user.getProvider() != null ? user.getProvider().name() : "LOCAL"
         ));
+    }
+
+    @PostMapping("/complete-profile")
+    public ResponseEntity<String> completeProfile(@RequestBody @Valid CompleteProfileRequestDto request) {
+        User user = getCurrentUser();
+        if (user == null) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+
+        user.setNickName(request.getNickName());
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        userRepository.save(user);
+
+        return ResponseEntity.ok("프로필이 완성되었습니다.");
     }
 
     @PutMapping("/profile")
@@ -143,13 +157,19 @@ public class AuthController {
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null
-                || !authentication.isAuthenticated()
-                || !(authentication.getPrincipal() instanceof CustomUserDetails)) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             return null;
         }
 
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        return userDetails.getUser();
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof CustomUserDetails userDetails) {
+            return userDetails.getUser();
+        }
+        if (principal instanceof CustomOAuth2User oAuth2User) {
+            return oAuth2User.getUser();
+        }
+
+        return null;
     }
 }
