@@ -199,6 +199,8 @@ jobs:
 
           docker network create ai-denti-net || true
 
+          mkdir -p ~/denti_uploads
+
           docker build \
             -t denti-api:${{ github.sha }} \
             .
@@ -211,6 +213,7 @@ jobs:
             --network ai-denti-net \
             --restart unless-stopped \
             -p 8080:8080 \
+            -v ~/denti_uploads:/app/uploads \
             denti-api:${{ github.sha }}
 
           EOF
