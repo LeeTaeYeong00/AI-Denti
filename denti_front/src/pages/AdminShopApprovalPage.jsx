@@ -108,7 +108,7 @@ export default function AdminShopApprovalPage() {
 
                             {shop.businessDocUrl && (
                                 <a
-                                    href={`http://localhost:8080${shop.businessDocUrl}`}
+                                    href={`http://43.200.140.195:8080${shop.businessDocUrl}`}
                                     target="_blank"
                                     rel="noreferrer"
                                     style={{ display: "inline-block", marginTop: 8, fontSize: 13 }}

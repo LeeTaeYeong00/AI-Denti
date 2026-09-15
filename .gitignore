@@ -3,7 +3,6 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-bin/
 
 ### STS ###
 .apt_generated
@@ -108,6 +107,9 @@ dist-ssr
 *.suo
 *.ntvs*
 *.ids
+<<<<<<< HEAD
+*.ccproj
+=======
 *.ccproj
 
 bin/
@@ -138,3 +140,4 @@ models/
 
 cookie.txt
 *.txt
+>>>>>>> origin/develop

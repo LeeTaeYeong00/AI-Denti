@@ -3,6 +3,9 @@ import { AuthProvider } from "./context/AuthContext";
 import NavBar from "./components/NavBar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ReviewWritePage from "./pages/review/ReviewWritePage";
+import CommunityListPage from "./pages/community/CommunityListPage";
+import CommunityPostDetailPage from "./pages/community/CommunityPostDetailPage";
+import CommunityPostFormPage from "./pages/community/CommunityPostFormPage";
 import MyReviewsPage from "./pages/review/MyReviewsPage";
 import ShopReviewManagementPage from "./pages/review/ShopReviewManagementPage";
 import MyFavoritesPage from "./pages/favorite/MyFavoritesPage";
@@ -37,8 +40,6 @@ import AdminUserPage from "./pages/AdminUserPage";
 import ManageAvailableTimePage from "./pages/ManageAvailableTimePage";
 import ManageShopHourPage from "./pages/ManageShopHourPage";
 
-
-
 function App() {
     return (
         <AuthProvider>
@@ -47,6 +48,7 @@ function App() {
                 <Routes>
                     {/* 메인 / 인증 페이지 */}
                     <Route path="/" element={<Main />} />
+
                     <Route
                         path="/mypage"
                         element={
@@ -55,8 +57,39 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
+
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
+
+                    {/* 자유게시판 */}
+                    <Route
+                        path="/community"
+                        element={<CommunityListPage />}
+                    />
+
+                    <Route
+                        path="/community/write"
+                        element={
+                            <ProtectedRoute>
+                                <CommunityPostFormPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/community/:postId/edit"
+                        element={
+                            <ProtectedRoute>
+                                <CommunityPostFormPage />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/community/:postId"
+                        element={<CommunityPostDetailPage />}
+                    />
+
                     <Route
                         path="/ai/history"
                         element={
@@ -77,6 +110,7 @@ function App() {
 
                     {/* 지도 및 수리점 도메인 페이지 */}
                     <Route path="/map" element={<MapPage />} />
+
                     <Route
                         path="/repair-shops/:shopId"
                         element={<RepairShopDetailPage />}
@@ -128,7 +162,7 @@ function App() {
                         element={<ShopReservationPage />}
                     />
 
-                    {/* AI 분석 페이지 (보호된 라우트) */}
+                    {/* AI 분석 페이지 */}
                     <Route
                         path="/ai"
                         element={
@@ -137,7 +171,8 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
-                    
+
+                    {/* 리뷰 */}
                     <Route
                         path="/reviews/write/:reservationId"
                         element={
@@ -146,7 +181,7 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
-                    
+
                     <Route
                         path="/my-reviews"
                         element={
@@ -165,6 +200,7 @@ function App() {
                         }
                     />
 
+                    {/* 수리점 */}
                     <Route
                         path="/my-shop"
                         element={
@@ -182,6 +218,8 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
+
+                    {/* 수리 항목 */}
                     <Route
                         path="/repair-items"
                         element={
@@ -196,6 +234,7 @@ function App() {
                         element={<RepairItemListPage />}
                     />
 
+                    {/* 상품 */}
                     <Route
                         path="/products"
                         element={
@@ -233,6 +272,7 @@ function App() {
                         element={<ProductListPage />}
                     />
 
+                    {/* 관리자 */}
                     <Route
                         path="/admin/repair-shops"
                         element={
@@ -241,6 +281,7 @@ function App() {
                             </AdminRoute>
                         }
                     />
+
                     <Route
                         path="/admin/users"
                         element={
@@ -249,6 +290,8 @@ function App() {
                             </AdminRoute>
                         }
                     />
+
+                    {/* 수리점 운영 */}
                     <Route
                         path="/manage-available-times"
                         element={
@@ -257,6 +300,7 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
+
                     <Route
                         path="/manage-shop-hours"
                         element={
@@ -265,7 +309,6 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
-                    {/* 팀원들이 각자 도메인 라우트를 여기에 한 줄씩 추가 */}
                 </Routes>
             </BrowserRouter>
         </AuthProvider>

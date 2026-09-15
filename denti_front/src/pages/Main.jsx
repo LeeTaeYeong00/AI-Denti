@@ -5,6 +5,7 @@ import PromoBanner from "../components/PromoBanner";
 import {
     ScanIcon,
     MapPinIcon,
+    FileIcon,
     UserIcon,
     WrenchIcon,
 } from "../components/icons";
@@ -36,6 +37,7 @@ const FEATURES = [
     { icon: UserIcon, label: "마이페이지", desc: "예약, 차량, 이력 한눈에", to: "/mypage", tint: "success", authOnly: true },
     { icon: WrenchIcon, label: "내 주문", desc: "주문 내역 확인하기", to: "/my-orders", tint: "info", authOnly: true },
     { icon: WrenchIcon, label: "내 정비소", desc: "정비소 등록 및 예약 관리", to: "/my-shop", tint: "ink", authOnly: true },
+    { icon: FileIcon, label: "자유게시판", desc: "차량과 정비 이야기 나누기", to: "/community", tint: "pending" },
 ];
 
 export default function Main() {
