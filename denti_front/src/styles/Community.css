@@ -502,6 +502,31 @@
     cursor: not-allowed;
 }
 
+.community-report-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--color-ink-soft);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+
+.community-report-button:hover {
+    border-color: var(--color-danger);
+    background: var(--color-danger-soft, #fdecec);
+    color: var(--color-danger);
+}
+
 .community-detail__error {
     margin: 14px 0 0;
     text-align: center;

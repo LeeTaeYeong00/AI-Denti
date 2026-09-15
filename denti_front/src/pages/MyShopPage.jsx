@@ -128,6 +128,12 @@ export default function MyShopPage() {
                                     </button>
                                     <button
                                         className="btn btn-outline btn-sm"
+                                        onClick={() => navigate(`/chat?shopId=${shop.shopId}`)}
+                                    >
+                                        받은 문의
+                                    </button>
+                                    <button
+                                        className="btn btn-outline btn-sm"
                                         onClick={() => navigate(`/manage-available-times?shopId=${shop.shopId}`)}
                                     >
                                         예약 시간대 관리

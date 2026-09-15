@@ -123,6 +123,10 @@ function MapPage() {
 
         markersRef.current = [];
 
+        // 현재 열려있는 InfoWindow와, 그걸 연 마커를 기억 (마커 재생성마다 새로 초기화)
+        let openInfoWindow = null;
+        let openMarker = null;
+
         // 검색 결과 마커 생성
         filteredAddresses.forEach((address) => {
             const position = new window.kakao.maps.LatLng(
@@ -178,7 +182,22 @@ function MapPage() {
                 marker,
                 "click",
                 () => {
+                    // 이미 열려있는 InfoWindow가 있으면 무조건 먼저 닫기
+                    if (openInfoWindow) {
+                        openInfoWindow.close();
+                    }
+
+                    // 같은 마커를 다시 클릭한 거면, 닫기만 하고 끝 (토글)
+                    if (openMarker === marker) {
+                        openInfoWindow = null;
+                        openMarker = null;
+                        return;
+                    }
+
+                    // 새로 열기
                     infoWindow.open(map, marker);
+                    openInfoWindow = infoWindow;
+                    openMarker = marker;
 
                     setTimeout(() => {
                         const button = document.getElementById(

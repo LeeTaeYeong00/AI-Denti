@@ -7,6 +7,7 @@ import { getRepairShopHours } from "../api/repairShopHourAPI";
 import { getAvailableTimes, createReservation } from "../api/reservationAPI";
 import { getMyVehicles, createVehicle } from "../api/vehicleAPI";
 import { getRepairShop, getRepairShopByShopId } from "../api/repairShopAPI";
+import { getOrCreateRoom } from "../api/chatAPI";
 
 function RepairShopDetailPage() {
     const { shopId } = useParams();
@@ -118,6 +119,21 @@ function RepairShopDetailPage() {
         }
     };
 
+    const handleStartChat = async () => {
+        if (!loginUser) {
+            alert("로그인 후 이용해주세요.");
+            navigate("/login");
+            return;
+        }
+        try {
+            const room = await getOrCreateRoom(shop.shopId);
+            navigate(`/chat/${room.roomId}`);
+        } catch (error) {
+            console.error("채팅방 생성 실패:", error);
+            alert("채팅을 시작할 수 없습니다.");
+        }
+    };
+
     // 3. 날짜 선택 시 예약 가능 시간 조회
     useEffect(() => {
         if (!shop) return;
@@ -173,7 +189,12 @@ function RepairShopDetailPage() {
             >
                 <h1>{shop.shopName || "정비소"}</h1>
 
-                <FavoriteButton shopId={shop.shopId} />
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <FavoriteButton shopId={shop.shopId} />
+                    <button className="btn btn-outline btn-sm" onClick={handleStartChat}>
+                        문의하기
+                    </button>
+                </div>
             </div>
 
             <div>
