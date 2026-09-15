@@ -8,6 +8,7 @@ import {
     FileIcon,
     HistoryIcon,
     UserIcon,
+    ChatIcon,
 } from "../components/icons";
 
 const MENU = [
@@ -15,6 +16,7 @@ const MENU = [
     { icon: CalendarIcon, label: "내 예약 내역", desc: "예약 현황 확인하기", to: "/my-reservations", tint: "success" },
     { icon: FileIcon, label: "정비 이력", desc: "지난 정비 기록 보기", to: "/repair-history", tint: "pending" },
     { icon: HistoryIcon, label: "AI 분석 이력", desc: "지난 분석 결과 다시보기", to: "/ai/history", tint: "danger" },
+        { icon: ChatIcon, label: "내 문의", desc: "정비소와의 채팅 내역", to: "/chat", tint: "info" }, // 추가
 ];
 
 export default function MyPage() {

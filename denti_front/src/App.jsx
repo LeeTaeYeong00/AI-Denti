@@ -41,7 +41,8 @@ import ManageAvailableTimePage from "./pages/ManageAvailableTimePage";
 import ManageShopHourPage from "./pages/ManageShopHourPage";
 import CustomerServicePage from "./pages/CustomerServicePage";
 import AdminInquiryPage from "./pages/AdminInquiryPage";
-
+import ChatRoomPage from "./pages/ChatRoomPage";
+import ChatRoomListPage from "./pages/ChatRoomListPage";
 
 function App() {
     return (
@@ -320,7 +321,9 @@ function App() {
                             <AdminInquiryPage />
                         </AdminRoute>
                     }
-                />                    
+                />
+                <Route path="/chat" element={<ProtectedRoute><ChatRoomListPage /></ProtectedRoute>} />
+                <Route path="/chat/:roomId" element={<ProtectedRoute><ChatRoomPage /></ProtectedRoute>} />             
                 </Routes>
             </BrowserRouter>
         </AuthProvider>
