@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL = "http://43.200.140.195:8080";
 
 export const getAvailableTimes = async (shopId, date) => {
     const response = await fetch(
