@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.denti_back.shop.dto.RepairShopAddressResponseDto;
 import com.example.denti_back.shop.entity.RepairShopAddress;
+import com.example.denti_back.shop.enums.ApprovalStatus;
 import com.example.denti_back.shop.repository.RepairShopAddressRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class RepairShopAddressService {
 
         return repairShopAddressRepository.findAll()
                 .stream()
+                .filter(address -> address.getRepairShop().getApprovalStatus() == ApprovalStatus.APPROVED)
                 .map(RepairShopAddressResponseDto::new)
                 .toList();
     }
@@ -45,6 +47,7 @@ public class RepairShopAddressService {
         return repairShopAddressRepository
                 .findNearbyAddresses(latitude, longitude, distance)
                 .stream()
+                .filter(address -> address.getRepairShop().getApprovalStatus() == ApprovalStatus.APPROVED)
                 .map(RepairShopAddressResponseDto::new)
                 .toList();
     }

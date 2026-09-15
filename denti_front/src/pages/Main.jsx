@@ -7,26 +7,9 @@ import {
     MapPinIcon,
     UserIcon,
     WrenchIcon,
+    FileIcon,
+    // 기존에 쓰던 아이콘들 그대로 유지
 } from "../components/icons";
-
-const SLIDES = [
-    {
-        eyebrow: "AI-DENTI",
-        title: "사진 한 장으로 파손 진단부터 예상 견적까지",
-        subtitle: "AI가 파손 부위를 분석하고, 가까운 정비소 예약까지 바로 연결해드려요.",
-        cta: "AI 분석 시작하기",
-        to: "/ai",
-        background: "linear-gradient(135deg, #1b1e24, #2c313a)",
-    },
-    {
-        eyebrow: "EVENT",
-        title: "지금 회원가입하면 첫 AI 분석 무료",
-        subtitle: "기간 한정으로 첫 진단 리포트를 무료로 받아보세요.",
-        cta: "회원가입하기",
-        to: "/signup",
-        background: "linear-gradient(135deg, var(--color-signal-hover), var(--color-signal))",
-    },
-];
 
 const FEATURES = [
     { icon: ScanIcon, label: "AI 파손 분석", desc: "사진으로 파손 진단 받기", to: "/ai", tint: "signal", authOnly: true },
@@ -36,6 +19,8 @@ const FEATURES = [
     { icon: UserIcon, label: "마이페이지", desc: "예약, 차량, 이력 한눈에", to: "/mypage", tint: "success", authOnly: true },
     { icon: WrenchIcon, label: "내 주문", desc: "주문 내역 확인하기", to: "/my-orders", tint: "info", authOnly: true },
     { icon: WrenchIcon, label: "내 정비소", desc: "정비소 등록 및 예약 관리", to: "/my-shop", tint: "ink", authOnly: true },
+    { icon: FileIcon, label: "자유게시판", desc: "차량과 정비 이야기 나누기", to: "/community", tint: "pending" },
+    { icon: FileIcon, label: "고객센터", desc: "문의 및 신고 접수하기", to: "/support", tint: "pending" },
 ];
 
 export default function Main() {
@@ -43,7 +28,6 @@ export default function Main() {
     const navigate = useNavigate();
     const isAdmin = loginUser?.role === "ADMIN";
 
-    // 관리자가 / 로 접속하면 자동으로 승인 관리 페이지로 이동
     useEffect(() => {
         if (isAdmin) {
             navigate("/admin/repair-shops", { replace: true });
@@ -54,9 +38,55 @@ export default function Main() {
         return null;
     }
 
+    const slides = loginUser
+        ? [
+              {
+                  eyebrow: "AI-DENTI",
+                  title: (
+                      <>
+                          사진 한 장으로 파손 진단부터<br />예상 견적까지
+                      </>
+                  ),
+                  subtitle: "AI가 파손 부위를 분석하고, 가까운 정비소 예약까지 바로 연결해드려요.",
+                  cta: "AI 분석 시작하기",
+                  to: "/ai",
+                  background: "linear-gradient(135deg, #1b1e24, #2c313a)",
+              },
+              {
+                  eyebrow: "MY GARAGE",
+                  title: `${loginUser.nickName}님, 오늘도 안전운전 하세요`,
+                  subtitle: "내 차량 관리, 예약 현황을 마이페이지에서 한눈에 확인해보세요.",
+                  cta: "마이페이지 가기",
+                  to: "/mypage",
+                  background: "linear-gradient(135deg, var(--color-signal-hover), var(--color-signal))",
+              },
+          ]
+        : [
+              {
+                  eyebrow: "AI-DENTI",
+                  title: (
+                      <>
+                          사진 한 장으로 파손 진단부터<br />예상 견적까지
+                      </>
+                  ),
+                  subtitle: "AI가 파손 부위를 분석하고, 가까운 정비소 예약까지 바로 연결해드려요.",
+                  cta: "AI 분석 시작하기",
+                  to: "/ai",
+                  background: "linear-gradient(135deg, #1b1e24, #2c313a)",
+              },
+              {
+                  eyebrow: "EVENT",
+                  title: "지금 회원가입하면 첫 AI 분석 무료",
+                  subtitle: "기간 한정으로 첫 진단 리포트를 무료로 받아보세요.",
+                  cta: "회원가입하기",
+                  to: "/signup",
+                  background: "linear-gradient(135deg, var(--color-signal-hover), var(--color-signal))",
+              },
+          ];
+
     return (
         <div className="page page--wide">
-            <PromoBanner slides={SLIDES} />
+            <PromoBanner slides={slides} />
 
             <div className="section-title-row" style={{ marginTop: 48 }}>
                 <div>

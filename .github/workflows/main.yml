@@ -195,6 +195,8 @@ jobs:
 
           cd ~/ai-denti-deploy/backend
 
+          docker network create ai-denti-net || true
+
           docker build \
             -t denti-api:${{ github.sha }} \
             .
@@ -204,12 +206,12 @@ jobs:
 
           docker run -d \
             --name denti-api \
+            --network ai-denti-net \
             --restart unless-stopped \
             -p 8080:8080 \
             denti-api:${{ github.sha }}
 
           EOF
-
       # Frontend Docker 배포
       - name: Deploy Frontend
         run: |
@@ -227,6 +229,7 @@ jobs:
 
           docker run -d \
             --name denti-web \
+            --network ai-denti-net \
             --restart unless-stopped \
             -p 80:80 \
             denti-web:${{ github.sha }}

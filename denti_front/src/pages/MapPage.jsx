@@ -11,36 +11,28 @@ function MapPage() {
     const [searchKeyword, setSearchKeyword] = useState("");
     const [appliedKeyword, setAppliedKeyword] = useState("");
 
-    // 검색 결과
     const filteredAddresses = addresses.filter((address) => {
         const keyword = appliedKeyword.trim().toLowerCase();
-
         if (!keyword) return true;
-
         return (
             address.shopName?.toLowerCase().includes(keyword) ||
             address.address?.toLowerCase().includes(keyword)
         );
     });
 
-    // 정비소 주소 조회
     useEffect(() => {
         const getAddresses = async () => {
             try {
                 const data = await getRepairShopAddresses();
-
                 console.log("주소 데이터:", data);
-
                 setAddresses(data);
             } catch (error) {
                 console.error("주소 조회 실패:", error);
             }
         };
-
         getAddresses();
     }, []);
 
-    // 카카오 지도 SDK 로딩 확인
     useEffect(() => {
         const checkKakao = () => {
             if (
@@ -52,24 +44,18 @@ function MapPage() {
                 setKakaoLoaded(true);
                 return true;
             }
-
             return false;
         };
 
-        if (checkKakao()) {
-            return;
-        }
+        if (checkKakao()) return;
 
         const interval = setInterval(() => {
-            if (checkKakao()) {
-                clearInterval(interval);
-            }
+            if (checkKakao()) clearInterval(interval);
         }, 300);
 
         return () => clearInterval(interval);
     }, []);
 
-    // 지도 최초 생성
     useEffect(() => {
         if (!kakaoLoaded) {
             console.log("카카오 지도 SDK가 아직 로드되지 않음");
@@ -91,13 +77,10 @@ function MapPage() {
                 firstAddress.longitude
             );
 
-            const map = new window.kakao.maps.Map(
-                mapContainer.current,
-                {
-                    center,
-                    level: 5,
-                }
-            );
+            const map = new window.kakao.maps.Map(mapContainer.current, {
+                center,
+                level: 5,
+            });
 
             mapRef.current = map;
 
@@ -108,7 +91,6 @@ function MapPage() {
         });
     }, [addresses, kakaoLoaded]);
 
-    // 검색 결과에 따라 마커만 변경
     useEffect(() => {
         if (!mapRef.current || !window.kakao?.maps) {
             return;
@@ -116,14 +98,16 @@ function MapPage() {
 
         const map = mapRef.current;
 
-        // 기존 마커 제거
         markersRef.current.forEach((marker) => {
             marker.setMap(null);
         });
 
         markersRef.current = [];
 
-        // 검색 결과 마커 생성
+        // 현재 열려있는 InfoWindow와, 그걸 연 마커를 기억 (마커 재생성마다 새로 초기화)
+        let openInfoWindow = null;
+        let openMarker = null;
+
         filteredAddresses.forEach((address) => {
             const position = new window.kakao.maps.LatLng(
                 address.latitude,
@@ -174,29 +158,35 @@ function MapPage() {
                 `,
             });
 
-            window.kakao.maps.event.addListener(
-                marker,
-                "click",
-                () => {
-                    infoWindow.open(map, marker);
-
-                    setTimeout(() => {
-                        const button = document.getElementById(
-                            `detail-button-${address.addressId}`
-                        );
-
-                        if (button) {
-                            button.onclick = () => {
-                                window.location.href =
-                                    `/repair-shops/${address.shopId}`;
-                            };
-                        }
-                    }, 100);
+            window.kakao.maps.event.addListener(marker, "click", () => {
+                if (openInfoWindow) {
+                    openInfoWindow.close();
                 }
-            );
+
+                if (openMarker === marker) {
+                    openInfoWindow = null;
+                    openMarker = null;
+                    return;
+                }
+
+                infoWindow.open(map, marker);
+                openInfoWindow = infoWindow;
+                openMarker = marker;
+
+                setTimeout(() => {
+                    const button = document.getElementById(
+                        `detail-button-${address.addressId}`
+                    );
+
+                    if (button) {
+                        button.onclick = () => {
+                            window.location.href = `/repair-shops/${address.shopId}`;
+                        };
+                    }
+                }, 100);
+            });
         });
 
-        // 검색 결과가 있으면 모든 검색 결과가 보이도록 지도 범위 조절
         if (filteredAddresses.length > 0 && appliedKeyword.trim()) {
             const bounds = new window.kakao.maps.LatLngBounds();
 
@@ -205,7 +195,6 @@ function MapPage() {
                     address.latitude,
                     address.longitude
                 );
-
                 bounds.extend(position);
             });
 
@@ -218,12 +207,10 @@ function MapPage() {
         );
     }, [filteredAddresses, appliedKeyword]);
 
-    // 검색 실행
     const handleSearch = () => {
         setAppliedKeyword(searchKeyword);
     };
 
-    // 엔터로 검색
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
             handleSearch();
@@ -237,7 +224,6 @@ function MapPage() {
                 <h1 style={{ fontSize: 28 }}>정비소 지도</h1>
             </div>
 
-            {/* 검색 */}
             <div
                 style={{
                     display: "flex",
@@ -294,7 +280,6 @@ function MapPage() {
                 </button>
             </div>
 
-            {/* 검색 결과 */}
             <div
                 style={{
                     marginBottom: "12px",
@@ -307,7 +292,6 @@ function MapPage() {
                     : `등록된 정비소 ${filteredAddresses.length}곳`}
             </div>
 
-            {/* 지도 */}
             <div
                 ref={mapContainer}
                 className="card"
@@ -388,7 +372,6 @@ function MapPage() {
                 ))}
             </div>
 
-            {/* 검색 결과 없음 */}
             {filteredAddresses.length === 0 && (
                 <div
                     style={{

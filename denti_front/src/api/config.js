@@ -1,4 +1,4 @@
-export const SERVER_BASE_URL = "http://43.200.140.195:8080";
+export const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL;
 
 export const axiosConfig = {
     baseURL: SERVER_BASE_URL,
@@ -79,6 +79,24 @@ export const ENDPOINTS = {
         IMAGES: (reviewId) => `/api/reviews/${reviewId}/images`,
         IMAGE_DETAIL: (reviewImageId) => `/api/reviews/images/${reviewImageId}`,
         MY: "/api/reviews/my",
+    },
+
+    COMMUNITY: {
+        BASE: "/api/community/posts",
+        DETAIL: (postId) => `/api/community/posts/${postId}`,
+
+        COMMENTS: (postId) =>
+            `/api/community/posts/${postId}/comments`,
+        COMMENT_DETAIL: (commentId) =>
+            `/api/community/comments/${commentId}`,
+
+        LIKE: (postId) =>
+            `/api/community/posts/${postId}/like`,
+
+        IMAGES: (postId) =>
+            `/api/community/posts/${postId}/images`,
+        IMAGE_DETAIL: (postImageId) =>
+            `/api/community/images/${postImageId}`,
     },
 
     RESERVATION: {
