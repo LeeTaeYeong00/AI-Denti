@@ -50,6 +50,7 @@ export default function NavBar() {
                         <>
                             <Link to="/admin/repair-shops" className="nav-main__link">정비소 승인 관리</Link>
                             <Link to="/admin/users" className="nav-main__link">회원 관리</Link>
+                            <Link to="/admin/inquiries" className="nav-main__link">고객센터 관리</Link>
                         </>
 
                     ) : (

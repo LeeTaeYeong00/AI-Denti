@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import {
     addCommunityPostLike,
@@ -12,6 +12,7 @@ import CommunityAuthor from "../../components/community/CommunityAuthor";
 import CommunityCommentSection from "../../components/community/CommunityCommentSection";
 import { HeartIcon } from "../../components/icons";
 import { useAuth } from "../../context/AuthContext";
+
 
 const getErrorMessage = (error, fallbackMessage) => {
     const responseData = error?.response?.data;
@@ -438,14 +439,24 @@ function CommunityPostDetailPage() {
                             {liking
                                 ? "처리 중..."
                                 : post.liked
-                                  ? "좋아요 취소"
-                                  : "좋아요"}
+                                ? "좋아요 취소"
+                                : "좋아요"}
                         </span>
 
                         <strong>
                             {post.likeCount ?? 0}
                         </strong>
                     </button>
+
+                    {loginUser && !isWriter && (
+                        <Link
+                            to={`/support?reportedUserId=${post.writerId}&reportedPostId=${post.postId}`}
+                        >
+                            <button type="button" className="community-report-button">
+                                🚨신고하기
+                            </button>
+                        </Link>
+                    )}
                 </footer>
 
                 {actionError && (

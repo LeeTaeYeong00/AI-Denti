@@ -39,6 +39,9 @@ import AdminRoute from "./components/AdminRoute";
 import AdminUserPage from "./pages/AdminUserPage";
 import ManageAvailableTimePage from "./pages/ManageAvailableTimePage";
 import ManageShopHourPage from "./pages/ManageShopHourPage";
+import CustomerServicePage from "./pages/CustomerServicePage";
+import AdminInquiryPage from "./pages/AdminInquiryPage";
+
 
 function App() {
     return (
@@ -309,6 +312,15 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
+                <Route path="/support" element={<CustomerServicePage />} />
+                <Route
+                    path="/admin/inquiries"
+                    element={
+                        <AdminRoute>
+                            <AdminInquiryPage />
+                        </AdminRoute>
+                    }
+                />                    
                 </Routes>
             </BrowserRouter>
         </AuthProvider>

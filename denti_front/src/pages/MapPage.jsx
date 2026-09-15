@@ -62,7 +62,6 @@ function MapPage() {
         window.kakao.maps.load(() => {
             console.log("카카오 지도 API 로드 성공");
 
-            // 등록된 주소가 있으면 첫 번째 주소를, 없으면 서울시청을 기본 중심으로 사용한다.
             const DEFAULT_CENTER = { latitude: 37.5665, longitude: 126.978 };
             const firstAddress = addresses[0] ?? DEFAULT_CENTER;
 
@@ -80,6 +79,10 @@ function MapPage() {
             );
 
             console.log("지도 생성 성공", `(등록된 정비소 ${addresses.length}곳)`);
+
+            // 현재 열려있는 InfoWindow와, 그걸 연 마커를 기억
+            let openInfoWindow = null;
+            let openMarker = null;
 
             addresses.forEach((address) => {
                 const position = new window.kakao.maps.LatLng(
@@ -133,7 +136,22 @@ function MapPage() {
                     marker,
                     "click",
                     () => {
+                        // 이미 열려있는 InfoWindow가 있으면 무조건 먼저 닫기
+                        if (openInfoWindow) {
+                            openInfoWindow.close();
+                        }
+
+                        // 같은 마커를 다시 클릭한 거면, 닫기만 하고 끝 (토글)
+                        if (openMarker === marker) {
+                            openInfoWindow = null;
+                            openMarker = null;
+                            return;
+                        }
+
+                        // 새로 열기
                         infoWindow.open(map, marker);
+                        openInfoWindow = infoWindow;
+                        openMarker = marker;
 
                         setTimeout(() => {
                             const button = document.getElementById(

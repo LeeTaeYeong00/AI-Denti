@@ -75,6 +75,11 @@ public class SecurityConfig {
                     "/api/reservations/**"
                 ).authenticated()
 
+                .requestMatchers(
+                    org.springframework.http.HttpMethod.POST,
+                    "/api/inquiries"
+                ).permitAll()
+                                
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                 // 나머지는 로그인 필요
