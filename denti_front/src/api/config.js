@@ -81,6 +81,24 @@ export const ENDPOINTS = {
         MY: "/api/reviews/my",
     },
 
+    COMMUNITY: {
+        BASE: "/api/community/posts",
+        DETAIL: (postId) => `/api/community/posts/${postId}`,
+
+        COMMENTS: (postId) =>
+            `/api/community/posts/${postId}/comments`,
+        COMMENT_DETAIL: (commentId) =>
+            `/api/community/comments/${commentId}`,
+
+        LIKE: (postId) =>
+            `/api/community/posts/${postId}/like`,
+
+        IMAGES: (postId) =>
+            `/api/community/posts/${postId}/images`,
+        IMAGE_DETAIL: (postImageId) =>
+            `/api/community/images/${postImageId}`,
+    },
+
     RESERVATION: {
         BASE: "/api/reservations",
         DETAIL: (reservationId) => `/api/reservations/${reservationId}`,
