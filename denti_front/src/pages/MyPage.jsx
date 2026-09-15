@@ -119,7 +119,11 @@ export default function MyPage() {
                             <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 14 }}>
                                 <div style={{ display: "flex", gap: 8 }}>
                                     <span style={{ color: "var(--color-ink-soft)", width: 56 }}>아이디</span>
-                                    <span>{loginUser.username ?? "-"}</span>
+                                    <span>
+                                        {loginUser.provider === "KAKAO"
+                                            ? "카카오 계정으로 로그인됨"
+                                            : loginUser.username ?? "-"}
+                                    </span>
                                 </div>
                                 <div style={{ display: "flex", gap: 8 }}>
                                     <span style={{ color: "var(--color-ink-soft)", width: 56 }}>이름</span>

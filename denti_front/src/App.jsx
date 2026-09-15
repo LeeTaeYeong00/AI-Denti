@@ -43,6 +43,8 @@ import CustomerServicePage from "./pages/CustomerServicePage";
 import AdminInquiryPage from "./pages/AdminInquiryPage";
 import ChatRoomPage from "./pages/ChatRoomPage";
 import ChatRoomListPage from "./pages/ChatRoomListPage";
+import OAuthCallback from "./pages/OAuthCallback";
+import AdditionalInfoPage from "./pages/AdditionalInfoPage";
 
 function App() {
     return (
@@ -324,6 +326,15 @@ function App() {
                 />
                 <Route path="/chat" element={<ProtectedRoute><ChatRoomListPage /></ProtectedRoute>} />
                 <Route path="/chat/:roomId" element={<ProtectedRoute><ChatRoomPage /></ProtectedRoute>} />             
+                <Route path="/oauth/callback" element={<OAuthCallback />} />
+                <Route
+                    path="/oauth/additional-info"
+                    element={
+                        <ProtectedRoute>
+                            <AdditionalInfoPage />
+                        </ProtectedRoute>
+                    }
+                />
                 </Routes>
             </BrowserRouter>
         </AuthProvider>

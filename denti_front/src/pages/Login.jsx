@@ -73,6 +73,14 @@ export default function Login() {
                     </button>
                 </form>
 
+                <div style={{ marginTop: 16 }}>
+                    <a href="http://localhost:8080/oauth2/authorization/kakao">
+                        <button type="button" className="btn btn-outline btn-block">
+                            카카오로 로그인
+                        </button>
+                    </a>
+                </div>
+
                 <p className="form-foot">
                     계정이 없으신가요? <Link to="/signup" className="link-accent">회원가입</Link>
                 </p>

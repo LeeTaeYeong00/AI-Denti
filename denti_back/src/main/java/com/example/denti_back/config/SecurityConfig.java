@@ -1,5 +1,8 @@
 package com.example.denti_back.config;
 
+import com.example.denti_back.member.security.CustomOAuth2UserService;
+import com.example.denti_back.member.security.OAuth2SuccessHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,7 +20,11 @@ import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -26,7 +33,6 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
 
-                // 공개 API
                 .requestMatchers(
                     "/api/auth/**",
                     "/api/health"
@@ -34,28 +40,23 @@ public class SecurityConfig {
 
                 .requestMatchers("/uploads/**").permitAll()
 
-                // 자유게시판 목록, 상세, 댓글 및 좋아요 상태 조회는 공개한다.
                 .requestMatchers(
                     org.springframework.http.HttpMethod.GET,
                     "/api/community/posts",
                     "/api/community/posts/**"
                 ).permitAll()
 
-                // 리뷰 관련 조회
-                // 내 리뷰 조회는 로그인한 사용자만 가능
                 .requestMatchers(
                     org.springframework.http.HttpMethod.GET,
                     "/api/reviews/my"
                 ).authenticated()
 
-                // 리뷰 한 건과 정비소별 리뷰는 비로그인 사용자도 조회 가능
                 .requestMatchers(
                     org.springframework.http.HttpMethod.GET,
                     "/api/reviews/*",
                     "/api/reviews/shops/**"
                 ).permitAll()
 
-                // 정비소 공개 정보
                 .requestMatchers(
                     "/api/repair-shop-addresses/**",
                     "/api/available-times/**",
@@ -63,14 +64,12 @@ public class SecurityConfig {
                     "/api/repair-shops/*"
                 ).permitAll()
 
-                // 정비 항목 조회
                 .requestMatchers(
                     org.springframework.http.HttpMethod.GET,
                     "/api/repair-items",
                     "/api/repair-items/shop/**"
                 ).permitAll()
 
-                // 예약 관련
                 .requestMatchers(
                     "/api/reservations/**"
                 ).authenticated()
@@ -79,17 +78,20 @@ public class SecurityConfig {
                     org.springframework.http.HttpMethod.POST,
                     "/api/inquiries"
                 ).permitAll()
-                                
+
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                 .requestMatchers("/ws-chat/**").permitAll()
 
-                // 나머지는 로그인 필요
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form.disable())
             .logout(logout -> logout.disable())
-            .httpBasic(httpBasic -> httpBasic.disable());
+            .httpBasic(httpBasic -> httpBasic.disable())
+            .oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                .successHandler(oAuth2SuccessHandler)
+            );
 
         return http.build();
     }

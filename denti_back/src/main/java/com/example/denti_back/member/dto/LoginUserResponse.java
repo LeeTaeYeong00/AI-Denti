@@ -12,4 +12,6 @@ public class LoginUserResponse {
     private String email;
     private String nickName;
     private String role;
+    private boolean needsAdditionalInfo;
+    private String provider;
 }
