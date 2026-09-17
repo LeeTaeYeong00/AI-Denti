@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login, getLoginUser } from "../api/accountAPI";
 import { useAuth } from "../context/AuthContext";
+import { SERVER_BASE_URL } from "../api/config";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -74,7 +75,7 @@ export default function Login() {
                 </form>
 
                 <div style={{ marginTop: 16 }}>
-                    <a href="http://localhost:8080/oauth2/authorization/kakao">
+                    <a href={`${SERVER_BASE_URL}/oauth2/authorization/kakao`}>
                         <button type="button" className="btn btn-outline btn-block">
                             카카오로 로그인
                         </button>
